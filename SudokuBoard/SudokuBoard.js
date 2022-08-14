@@ -5,28 +5,28 @@
   therefrom is calculated everything
   this class is only responsible for tha handling, oranazing, setting and getting the status of the cells contained the board.*/
 class SudokuBoard {
-  #boxSizeX;
-  #boxSizeY;
-  #dimensionX;
-  #dimensionY;
-  #cellNumber;
-  #maxNumber;
-  #cells;
-  #rows;
-  #cols;
-  #boxes;
+  boxSizeX;
+  boxSizeY;
+  dimensionX;
+  dimensionY;
+  cellNumber;
+  maxNumber;
+  cells;
+  rows;
+  cols;
+  boxes;
 
   constructor(boxSizeX, boxSizeY, puzzle = null) {
-    this.#boxSizeX = boxSizeX;
-    this.#boxSizeY = boxSizeY;
-    this.#dimensionX = boxSizeX ** 2;
-    this.#dimensionY = boxSizeY ** 2;
-    this.#cellNumber = this.#dimensionX * this.#dimensionY;
-    this.#maxNumber = this.#boxSizeX * this.#boxSizeY;
-    this.#cells = [];
-    this.#rows = [];
-    this.#cols = [];
-    this.#boxes = [];
+    this.boxSizeX = boxSizeX;
+    this.boxSizeY = boxSizeY;
+    this.dimensionX = boxSizeX ** 2;
+    this.dimensionY = boxSizeY ** 2;
+    this.cellNumber = this.dimensionX * this.dimensionY;
+    this.maxNumber = this.boxSizeX * this.boxSizeY;
+    this.cells = [];
+    this.rows = [];
+    this.cols = [];
+    this.boxes = [];
     this.generateBoard();
     puzzle && this.setBoard(puzzle);
     return this;
@@ -53,35 +53,33 @@ class SudokuBoard {
    * given, the cell has an initial value or not
    * issued, the cell has an issue or not */
   createCells() {
-    if (this.#cells.length <= this.#cellNumber) {
-      for (let y = 0; y < this.#dimensionY; y++) {
-        for (let x = 0; x < this.#dimensionX; x++) {
-          const bx = Math.floor(x / this.#boxSizeX);
-          const by = Math.floor(y / this.#boxSizeY);
+    if (this.cells.length <= this.cellNumber) {
+      for (let y = 0; y < this.dimensionY; y++) {
+        for (let x = 0; x < this.dimensionX; x++) {
+          const bx = Math.floor(x / this.boxSizeX);
+          const by = Math.floor(y / this.boxSizeY);
           const cell = new Cell({
-            id: y * this.#dimensionX + x,
+            id: y * this.dimensionX + x,
             x,
             y,
-            boxId: this.#boxSizeX * by + bx,
+            boxId: this.boxSizeX * by + bx,
             bx,
             by,
             accepted: {
               unfilled: 0,
               min: 1,
-              max: this.#maxNumber,
+              max: this.maxNumber,
             },
             given: false,
             issued: false,
           });
 
-          this.#cells.push(cell);
+          this.cells.push(cell);
         }
       }
     } else {
       throw new Error(
-        `Something went wrong, only number of ${
-          this.#cellNumber
-        } cells allowed you tried to create the +1.`
+        `Something went wrong, only number of ${this.cellNumber} cells allowed you tried to create the +1.`
       );
     }
   }
@@ -90,29 +88,29 @@ class SudokuBoard {
   arg:    null
   return: 1D of Cells (Object) */
   get cells() {
-    return this.#cells;
+    return this.cells;
   }
 
   /* the method returns all the data of the cells what the board including
    that used only for debugging purpose */
   boardProperties() {
-    return this.#cells.map((cell) => cell.getInfo());
+    return this.cells.map((cell) => cell.getInfo());
   }
 
   /* clearing all the issued property of the cells */
   clearIssued() {
-    this.#cells.forEach((cell) => cell.setUnIssued());
+    this.cells.forEach((cell) => cell.setUnIssued());
   }
 
   /* filtering a cells of batch with same batch id
   arg:    * dimension (integer) the length of the batch
           * id (integer) the id of the Batch that should filtered
   return: an array of cells */
-  #filterSameBatchID(dimension, id) {
+  filterSameBatchID(dimension, id) {
     const collector = [];
     for (let i = 0; i < dimension; i++) {
       const batch = new Batch(i, dimension);
-      this.#cells
+      this.cells
         .filter((cell) => cell[id] == i)
         .forEach((cell) => batch.addCell(cell));
       collector.push(batch);
@@ -126,51 +124,51 @@ class SudokuBoard {
 
   /* filtering out the cells, that are in the same column, putting into a Batch, that handle the columns */
   createCols() {
-    this.#cols = this.#filterSameBatchID(this.#dimensionX, "x");
+    this.cols = this.filterSameBatchID(this.dimensionX, "x");
   }
 
   /* filtering out the cells, that are in the same rows, putting into a Batch, that handle the rows */
   createRows() {
-    this.#rows = this.#filterSameBatchID(this.#dimensionY, "y");
+    this.rows = this.filterSameBatchID(this.dimensionY, "y");
   }
 
   /* filtering out the cells, that are in the same boxes, putting into a Batch, that handle the boxes */
   createBoxes() {
-    this.#boxes = this.#filterSameBatchID(this.#cellNumber, "boxId");
+    this.boxes = this.filterSameBatchID(this.cellNumber, "boxId");
   }
 
   /* gives a row according to the given row number
   arg:    rowNr (Integer)
   return: Batch (Objects) */
   getRow(rowNr) {
-    return this.#rows[rowNr];
+    return this.rows[rowNr];
   }
 
   /* gives all rows in a 2D array
   arg:    rowNr (Integer)
   return: 1D array of Batch (Objects) */
   getAllRows() {
-    return this.#rows;
+    return this.rows;
   }
 
   /* gives a column according to the given column number
   arg:    colNr (Integer)
   return: Batch (Objects) */
   getCol(colNr) {
-    return this.#cols[colNr];
+    return this.cols[colNr];
   }
 
   /* gives a section according to the given section number
   arg:    boxNr (Integer)
   return: Batch (Objects) */
   getBox(boxNr) {
-    return this.#boxes[boxNr];
+    return this.boxes[boxNr];
   }
 
   /* this method gives form the cells of the batch only the array of values back
     arg:    batch
     return: array of integers the values in the batch */
-  #filterValuesFromBatch(batch) {
+  filterValuesFromBatch(batch) {
     return batch.getCells().map((cell) => cell.value);
   }
 
@@ -178,21 +176,21 @@ class SudokuBoard {
   arg:    rowNr (Integer)
   return: values of the cells in the Batch (array of integers) */
   getRowValues(rowNr) {
-    return this.#filterValuesFromBatch(this.getRow(rowNr));
+    return this.filterValuesFromBatch(this.getRow(rowNr));
   }
 
   /* gives a column according to the given column number
   arg:    colNr (Integer)
   return: values of the cells in the Batch (array of integers) */
   getColValues(colNr) {
-    return this.#filterValuesFromBatch(this.getCol(colNr));
+    return this.filterValuesFromBatch(this.getCol(colNr));
   }
 
   /* gives a section according to the given section number
   arg:    boxNr (Integer)
   return: values of the cells in the Batch (array of integers) */
   getBoxValues(boxNr) {
-    return this.#filterValuesFromBatch(this.getBox(boxNr));
+    return this.filterValuesFromBatch(this.getBox(boxNr));
   }
 
   /* gives the missing numbers of a row according to the given row number
@@ -297,7 +295,7 @@ class SudokuBoard {
   getIssuedCells() {
     return [
       ...new Set(
-        [...this.#rows, ...this.#cols, ...this.#boxes]
+        [...this.rows, ...this.cols, ...this.boxes]
           .map((batch) => batch.getDuplicateValuedCells())
           .flat()
       ),
@@ -308,7 +306,7 @@ class SudokuBoard {
   arg:    null,
   return: boolen the puzzle is correct, true, that means there aren't any duplicates */
   puzzleIsCorrect() {
-    [...this.#rows, ...this.#cols, ...this.#boxes].forEach((batch) => {
+    [...this.rows, ...this.cols, ...this.boxes].forEach((batch) => {
       if (batch.hasDuplicates()) return false;
     });
     return true;
@@ -318,7 +316,7 @@ class SudokuBoard {
     arg:    null
     return: Cell (Object) */
   getFirstFeeCell() {
-    const freeCell = this.#cells.find((cell) => cell.value == 0);
+    const freeCell = this.cells.find((cell) => cell.value == 0);
     if (freeCell) return freeCell;
     return false;
   }
@@ -337,7 +335,7 @@ class SudokuBoard {
     return: true is the coords are in range */
   validateCoord(x, y) {
     return (
-      0 <= x && x <= this.#dimensionX - 1 && 0 <= y && y <= this.#dimensionY - 1
+      0 <= x && x <= this.dimensionX - 1 && 0 <= y && y <= this.dimensionY - 1
     );
   }
 
@@ -346,14 +344,10 @@ class SudokuBoard {
   return: Cell (Object) */
   getCellByCoords(x, y) {
     if (this.validateCoord(x, y)) {
-      return this.#cells.find((cell) => cell.x == x && cell.y == y);
+      return this.cells.find((cell) => cell.x == x && cell.y == y);
     } else {
       throw new Error(
-        `The x coordinate value must be between 1...${
-          this.#dimensionX
-        }, the y must be between 1...${
-          this.#dimensionY
-        }. You asked x: ${x} and y: ${y}.`
+        `The x coordinate value must be between 1...${this.dimensionX}, the y must be between 1...${this.dimensionY}. You asked x: ${x} and y: ${y}.`
       );
     }
   }
@@ -361,35 +355,29 @@ class SudokuBoard {
   /* the method check the incoming format of the board what will be set
   arg:    board it acn be 2D array, 1D array or a string
   return: array, where the frist element is the type of the incoming argument, the second is the message in case of error */
-  #boardFormat(board) {
+  boardFormat(board) {
     return Array.isArray(board)
-      ? board.length === this.#dimensionY
+      ? board.length === this.dimensionY
         ? board.every(
-            (row) => row.length === this.#dimensionX && Array.isArray(row)
+            (row) => row.length === this.dimensionX && Array.isArray(row)
           )
           ? ["2D"]
           : [
               "err",
-              `Input array of the setBoard method in case 2D array ${
-                this.#dimensionY
-              } times ${this.#dimensionX} sized.`,
+              `Input array of the setBoard method in case 2D array ${this.dimensionY} times ${this.dimensionX} sized.`,
             ]
-        : board.length === this.#cellNumber
+        : board.length === this.cellNumber
         ? ["1D"]
         : [
             "err",
-            `Input array of the setBoard method in case of 1D array must be exactly ${
-              this.#cellNumber
-            } element.`,
+            `Input array of the setBoard method in case of 1D array must be exactly ${this.cellNumber} element.`,
           ]
       : typeof board === "string"
-      ? board.length === this.#cellNumber
+      ? board.length === this.cellNumber
         ? ["string"]
         : [
             "err",
-            `Input of the setBoard method must be exactly ${
-              this.#cellNumber
-            } character long string this string is ${board.length}.`,
+            `Input of the setBoard method must be exactly ${this.cellNumber} character long string this string is ${board.length}.`,
           ]
       : ["err", `The board format is invalid!`];
   }
@@ -398,7 +386,7 @@ class SudokuBoard {
   arg:    board can be 1D array, 2D array or a string.
   return: void */
   setBoard(board, setGiven = false) {
-    const [format, msg] = this.#boardFormat(board);
+    const [format, msg] = this.boardFormat(board);
 
     const convertFormat = {
       "2D": () => {
@@ -406,7 +394,7 @@ class SudokuBoard {
       },
       "1D": () => {
         const board2D = [];
-        while (board.length) board2D.push(board.splice(0, this.#dimensionX));
+        while (board.length) board2D.push(board.splice(0, this.dimensionX));
         return board2D;
       },
       string: () => {
@@ -424,14 +412,14 @@ class SudokuBoard {
         if (setGiven) cell.isFilled() ? cell.setGiven() : cell.unsetGiven();
       })
     );
-    this.#setAllIssuedCells();
+    this.setAllIssuedCells();
   }
 
   /* gives the values of all the cells in the board
   arg:    null
   return: 1D of Cells (Object) */
   get cells() {
-    return this.#cells;
+    return this.cells;
   }
 
   /* gives the values of all the cells in the board
@@ -443,12 +431,12 @@ class SudokuBoard {
   getCellValues(
     { format, unfilledChar } = { format: "1D", unfilledChar: "0" }
   ) {
-    let res = this.#cells.map((cell) => cell.value);
+    let res = this.cells.map((cell) => cell.value);
     if (format.toUpperCase() === "STRING") {
       return res.join("").replace(/0/g, unfilledChar);
     } else if (format.toUpperCase() === "2D") {
       const board2D = [];
-      while (res.length) board2D.push(res.splice(0, this.#dimensionX));
+      while (res.length) board2D.push(res.splice(0, this.dimensionX));
       return board2D;
     }
     return res;
@@ -471,7 +459,7 @@ class SudokuBoard {
     } else if (x !== undefined && y !== undefined) {
       selectedCell = this.getCellByCoords(x, y);
     } else if (id !== undefined) {
-      selectedCell = this.#cells.find((cell) => cell.id === id);
+      selectedCell = this.cells.find((cell) => cell.id === id);
     } else {
       throw new Error(
         `The setCellValue arguments must be x (${x}), y (${y}), or a Cell (${cell}) object, or an id (${id})! There is no such cell that meets the requirements.`
@@ -480,11 +468,11 @@ class SudokuBoard {
 
     if (selectedCell) {
       selectedCell.setValue(value);
-      this.#setAllIssuedCells();
+      this.setAllIssuedCells();
     }
   }
 
-  #setAllIssuedCells() {
+  setAllIssuedCells() {
     this.clearIssued();
     this.getIssuedCells().forEach((issuedCell) => issuedCell.setIssued());
   }
@@ -493,25 +481,25 @@ class SudokuBoard {
 /* Class of the Batches, the batches in this concept a bunch of cells, thy can be rows, columns or boxes of the board, this is not matters, because every batch has the same porperties and methods
 only one argument required to create a Batch, th ID of them.*/
 class Batch {
-  #id;
-  #cells = [];
-  #validValues = [];
-  #unfilledValue;
-  #minValue;
-  #maxValue;
-  #cellNumber;
+  id;
+  cells = [];
+  validValues = [];
+  unfilledValue;
+  minValue;
+  maxValue;
+  cellNumber;
 
   constructor(id, cellNumber) {
-    this.#id = id;
-    this.#cellNumber = cellNumber;
+    this.id = id;
+    this.cellNumber = cellNumber;
   }
 
   set id(id) {
-    this.#id = id;
+    this.id = id;
   }
 
   get id() {
-    return this.#id;
+    return this.id;
   }
 
   /* adds a cell into the batch if there is no cell in the batch according to the first cell's acepted property is the valid values array and unfilled value added to the batch
@@ -519,34 +507,32 @@ class Batch {
   return: void (undefined) */
   addCell(cell) {
     const accepted = cell.getAccepted();
-    if (this.#cells.length == 0) {
-      this.#unfilledValue = accepted.unfilled;
-      this.#minValue = accepted.min;
-      this.#maxValue = accepted.max;
+    if (this.cells.length == 0) {
+      this.unfilledValue = accepted.unfilled;
+      this.minValue = accepted.min;
+      this.maxValue = accepted.max;
 
-      this.#validValues = Array.from(
+      this.validValues = Array.from(
         { length: accepted.max },
         (_, i) => i + accepted.min
       );
     }
 
     if (
-      this.#unfilledValue === accepted.unfilled &&
-      this.#minValue === accepted.min &&
-      this.#maxValue === accepted.max
+      this.unfilledValue === accepted.unfilled &&
+      this.minValue === accepted.min &&
+      this.maxValue === accepted.max
     ) {
-      this.#cells.push(cell);
+      this.cells.push(cell);
     } else {
       throw new Error(
         "The current cell that would be added has not the same value acceptance as the cells that are already in the batch."
       );
     }
 
-    if (this.#cells.length > this.#cellNumber)
+    if (this.cells.length > this.cellNumber)
       throw new Error(
-        `There is more cells in this batch (${
-          this.#cells.length
-        }) then allowed (${this.#cellNumber}).`
+        `There is more cells in this batch (${this.cells.length}) then allowed (${this.cellNumber}).`
       );
   }
 
@@ -554,14 +540,14 @@ class Batch {
   arg:   null,
   return arraf of integers, that contains the values of the cells in order the cells are added */
   getCellValues() {
-    return this.#cells.map((cell) => cell.value);
+    return this.cells.map((cell) => cell.value);
   }
 
   /* gives the missing numbers of the batch
   arg:    null
   return: array of integers that are the possible values what missing from the Batch  */
   getMissingNumbers() {
-    return this.#validValues.filter(
+    return this.validValues.filter(
       (value) => !this.getCellValues().includes(value)
     );
   }
@@ -570,7 +556,7 @@ class Batch {
   arg:    rowNr (Integer)
   return: array of integers that are alerady in the Batch written */
   getFilledNumbers() {
-    return this.#validValues.filter((value) =>
+    return this.validValues.filter((value) =>
       this.getCellValues().includes(value)
     );
   }
@@ -584,7 +570,7 @@ class Batch {
   arg:    null,
   return: array of cells (object) with the same values */
   getDuplicateValuedCells() {
-    return this.#cells.filter((cell) =>
+    return this.cells.filter((cell) =>
       this.getDuplicateValues().includes(cell.value)
     );
   }
@@ -594,11 +580,11 @@ class Batch {
   return: array of (integers)  */
   getDuplicateValues() {
     return Array.from(
-      { length: this.#maxValue - this.#minValue + 1 },
+      { length: this.maxValue - this.minValue + 1 },
       (_, i) => i + 1
     ).filter(
       (validNum) =>
-        this.#cells.filter((cell) => cell.value === validNum).length > 1
+        this.cells.filter((cell) => cell.value === validNum).length > 1
     );
   }
 
@@ -606,21 +592,21 @@ class Batch {
   arg:    value (integer),
   return: array of Cells (object) */
   getCellByValue(value) {
-    return this.#cells.filter((cell) => cell.value === value);
+    return this.cells.filter((cell) => cell.value === value);
   }
 
   /* gives a cell according to the given index
   arg:    i (integer) the index of the cell
   return: Cell (Object) */
   getCellByIndex(i) {
-    return this.#cells[i];
+    return this.cells[i];
   }
 
   /* gives all the cells they are in the batch
   arg:    null
   return: array of Cell (Object) */
   getCells() {
-    return this.#cells;
+    return this.cells;
   }
 
   /* sets the duplicate valued cells to issued
@@ -632,7 +618,7 @@ class Batch {
 
   /* removing the issued tag form the all the cells of the batch */
   clearIssued() {
-    this.#cells.forEach((cell) => cell.setUnIssued());
+    this.cells.forEach((cell) => cell.setUnIssued());
   }
 }
 
@@ -648,17 +634,17 @@ class Batch {
  * given, the cell has an initial value or not
  * issued, the cell has an issue or not */
 class Cell {
-  #given;
-  #issued;
-  #value;
-  #x;
-  #y;
-  #bx;
-  #by;
-  #id;
-  #boxId;
-  #accepted;
-  #ref;
+  given;
+  issued;
+  value;
+  x;
+  y;
+  bx;
+  by;
+  id;
+  boxId;
+  accepted;
+  ref;
 
   constructor({
     x,
@@ -673,55 +659,55 @@ class Cell {
     issued,
     ref,
   }) {
-    this.#x = x;
-    this.#y = y;
-    this.#bx = bx;
-    this.#id = id;
-    this.#boxId = boxId;
-    this.#by = by;
-    this.#accepted = accepted;
-    this.#value = accepted.unfilled;
-    this.#given = given || false;
-    this.#issued = issued || false;
-    this.#ref = ref || null;
+    this.x = x;
+    this.y = y;
+    this.bx = bx;
+    this.id = id;
+    this.boxId = boxId;
+    this.by = by;
+    this.accepted = accepted;
+    this.value = accepted.unfilled;
+    this.given = given || false;
+    this.issued = issued || false;
+    this.ref = ref || null;
   }
 
   get x() {
-    return this.#x;
+    return this.x;
   }
   get y() {
-    return this.#y;
+    return this.y;
   }
   get bx() {
-    return this.#bx;
+    return this.bx;
   }
   get by() {
-    return this.#by;
+    return this.by;
   }
   get id() {
-    return this.#id;
+    return this.id;
   }
   get boxId() {
-    return this.#boxId;
+    return this.boxId;
   }
   get value() {
-    return this.#value;
+    return this.value;
   }
 
   /* gives all the properties of a cell for debuging purpose made */
   getInfo() {
     return {
-      id: this.#id,
-      given: this.#given,
-      issued: this.#issued,
-      value: this.#value,
-      x: this.#x,
-      y: this.#y,
-      bx: this.#bx,
-      by: this.#by,
-      id: this.#id,
-      boxId: this.#boxId,
-      accepted: this.#accepted,
+      id: this.id,
+      given: this.given,
+      issued: this.issued,
+      value: this.value,
+      x: this.x,
+      y: this.y,
+      bx: this.bx,
+      by: this.by,
+      id: this.id,
+      boxId: this.boxId,
+      accepted: this.accepted,
     };
   }
 
@@ -730,8 +716,8 @@ class Cell {
     return: true if the value is correct */
   validateValue(value) {
     return (
-      (value >= this.#accepted.min && value <= this.#accepted.max) ||
-      value === this.#accepted.unfilled
+      (value >= this.accepted.min && value <= this.accepted.max) ||
+      value === this.accepted.unfilled
     );
   }
 
@@ -741,19 +727,11 @@ class Cell {
   setValue(newValue) {
     if (typeof newValue == "number") {
       if (this.validateValue(newValue)) {
-        this.#value = newValue;
+        this.value = newValue;
       } else {
-        this.#value = this.#accepted.unfilled;
+        this.value = this.accepted.unfilled;
         throw new Error(
-          `Valid cell value is between: ${this.#accepted.min} - ${
-            this.#accepted.max
-          }, value: ${
-            this.#accepted.unfilled
-          } is allowed for unfilled cells.\nYou tried to set value: ${newValue}, for cell(x=${
-            this.#x
-          }, y=${this.y}) but value set to: ${
-            this.#accepted.unfilled
-          }, because of this issue.`
+          `Valid cell value is between: ${this.accepted.min} - ${this.accepted.max}, value: ${this.accepted.unfilled} is allowed for unfilled cells.\nYou tried to set value: ${newValue}, for cell(x=${this.x}, y=${this.y}) but value set to: ${this.accepted.unfilled}, because of this issue.`
         );
       }
     } else {
@@ -762,36 +740,36 @@ class Cell {
   }
 
   get given() {
-    return this.#given;
+    return this.given;
   }
 
   /* sets a cell to given state, that means it coouldn't be changed by the user
     arg:     null
     returns: undefined */
   setGiven() {
-    this.#given = true;
+    this.given = true;
   }
 
   /* sets a cell to given state, that means it coouldn't be changed by the user
     arg:     null
     returns: undefined */
   unsetGiven() {
-    this.#given = false;
+    this.given = false;
   }
 
   /* gives back the cell issued state */
   get issued() {
-    return this.#issued;
+    return this.issued;
   }
 
   /* sets the cell to issued state */
   setIssued() {
-    this.#issued = true;
+    this.issued = true;
   }
 
   /* sets the cell to unissued state */
   setUnIssued() {
-    this.#issued = false;
+    this.issued = false;
   }
 
   /* gives the values what can the cell accept
@@ -801,7 +779,7 @@ class Cell {
     ** max is the maximum value
     ** unfilled value is that value what means the cell is unfilled */
   getAccepted() {
-    return this.#accepted;
+    return this.accepted;
   }
 
   /* gives info about that the cell is filled
@@ -815,14 +793,14 @@ class Cell {
   arg:    null
   return: boolean true if the cell has same values as an unfilled */
   isUnfilled() {
-    return this.#value === this.getAccepted().unfilled;
+    return this.value === this.getAccepted().unfilled;
   }
 
   /* the cell can store an external reference also */
   getRef() {
-    return this.#ref;
+    return this.ref;
   }
   setRef(ref) {
-    this.#ref = ref;
+    this.ref = ref;
   }
 }
