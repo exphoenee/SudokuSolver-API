@@ -12,7 +12,13 @@ app.get("/", function (req, res) {
 });
 
 app.get("/solve", function (req, res) {
-  res.send("Hello World");
+  res.send("You forgot the string what describes, the puzzle.");
+});
+
+app.get("/solve/:id", function (req, res, next) {
+  res.send("Requested id: " + req.params.id);
+  console.log("Requested id: " + req.params.id);
+  next();
 });
 
 app.use(express.urlencoded({ extended: true }));
