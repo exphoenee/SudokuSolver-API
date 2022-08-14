@@ -27,38 +27,33 @@ subarray e. g.:
 where n and m the x and y dimension of the sudoku, currently the n = m
 *************************************************************************/
 class SudokuSolver {
-  #renderMyself;
-  #sudokuboard;
-  #sectionSizeX;
-  #sectionSizeY;
-  #cellsInSection;
-  #columns;
-  #rows;
-  #render;
+  sudokuboard;
+  sectionSizeX;
+  sectionSizeY;
+  cellsInSection;
+  columns;
+  rows;
+  render;
 
-  constructor({ renderMyself, sectionSizeX, sectionSizeY }) {
+  constructor({ sectionSizeX, sectionSizeY }) {
     //the size of a section and matrix of sections n x n, but the css isn't made for other sizes only 3 x 3 sudokus...
-    this.#sectionSizeX = sectionSizeX || 3;
-    this.#sectionSizeY = sectionSizeY || 3;
-    this.#columns = sectionSizeX ** 2;
-    this.#rows = sectionSizeY ** 2;
+    this.sectionSizeX = sectionSizeX || 3;
+    this.sectionSizeY = sectionSizeY || 3;
+    this.columns = sectionSizeX ** 2;
+    this.rows = sectionSizeY ** 2;
 
     //calculated value of cells in the index form the section size
-    this.#cellsInSection = this.#rows * this.#columns;
+    this.cellsInSection = this.rows * this.columns;
 
     //if it is true the calss rendering himself (...or herself)
-    this.#renderMyself = renderMyself;
+    this.renderMyself = renderMyself;
 
     //using the SudokuBoard calss for handling the sudoku board
-    this.#sudokuboard = new SudokuBoard(this.#sectionSizeX, this.#sectionSizeY);
-
-    //rendering the table
-    renderMyself &&
-      (this.#render = new SudokuRenderer(this.sudokuboard, this.solvePuzzle));
+    this.sudokuboard = new SudokuBoard(this.sectionSizeX, this.sectionSizeY);
   }
 
   get sudokuboard() {
-    return this.#sudokuboard;
+    return this.sudokuboard;
   }
 
   /**********************************/
@@ -73,13 +68,13 @@ class SudokuSolver {
       * or a boolen which value can be only false what mean there is no solution for this puzzle */
   solvePuzzle(puzzle = null, format = "default") {
     if (puzzle) {
-      this.#sudokuboard.setBoard(puzzle);
+      this.sudokuboard.setBoard(puzzle);
     }
 
-    if (this.#sudokuboard.puzzleIsCorrect()) {
-      const result = this.#solve();
+    if (this.sudokuboard.puzzleIsCorrect()) {
+      const result = this.solve();
       if (result) {
-        this.#render?.updateUICells();
+        this.render?.updateUICells();
         const formatting = {
           string: () => this.toString(result),
           default: () => result,
@@ -101,26 +96,26 @@ class SudokuSolver {
   /* this method is the entry for making solution possiblities and filtrind out the not valid solution
     arg:    null
     return: boolean that means the puzzle is solved (ture) or not (false) */
-  #solve() {
-    return !this.#sudokuboard.coordsOfFirstFreeCell()
-      ? this.#sudokuboard.getCellValues({ format: "2D" })
-      : this.#checkPossiblities(this.#getPosiblities());
+  solve() {
+    return !this.sudokuboard.coordsOfFirstFreeCell()
+      ? this.sudokuboard.getCellValues({ format: "2D" })
+      : this.checkPossiblities(this.getPosiblities());
   }
 
   /* generating (k-j) different puzzles, where the first free cell is filled with all the possible numbenr j...k
     arg:    puzzle n x n sized 2D array
     return: m pieces of SudokuBorad class therefrom filtered out the incorrect versions */
-  #getPosiblities() {
-    const nextCell = this.#sudokuboard.getFirstFeeCell();
+  getPosiblities() {
+    const nextCell = this.sudokuboard.getFirstFeeCell();
 
     if (nextCell) {
-      const posNums = this.#sudokuboard.getCellPossiblities(nextCell);
+      const posNums = this.sudokuboard.getCellPossiblities(nextCell);
       return posNums.map((nr) => {
         const temporaryBoard = new SudokuBoard(
-          this.#sectionSizeX,
-          this.#sectionSizeY
+          this.sectionSizeX,
+          this.sectionSizeY
         );
-        temporaryBoard.setBoard(this.#sudokuboard.getCellValues());
+        temporaryBoard.setBoard(this.sudokuboard.getCellValues());
         temporaryBoard.setCellValue({ x: nextCell.x, y: nextCell.y }, nr);
         return temporaryBoard;
       });
@@ -137,12 +132,12 @@ class SudokuSolver {
       arg: m pieces of SudokuBorad class therefrom filtered out the incorrect versions
       return: boolean only false value, or
               n pieces of SudokuBorad class therefrom filtered out the incorrect versions */
-  #checkPossiblities(possiblities) {
+  checkPossiblities(possiblities) {
     if (possiblities.length > 0) {
       let possiblity = possiblities.shift();
-      this.#sudokuboard.setBoard(possiblity.getCellValues({ format: "2D" }));
-      const treeBranch = this.#solve(possiblity);
-      return treeBranch ? treeBranch : this.#checkPossiblities(possiblities);
+      this.sudokuboard.setBoard(possiblity.getCellValues({ format: "2D" }));
+      const treeBranch = this.solve(possiblity);
+      return treeBranch ? treeBranch : this.checkPossiblities(possiblities);
     } else {
       return false;
     }
