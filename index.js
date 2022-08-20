@@ -1,5 +1,5 @@
 const express = require("express");
-const SudokuSolver = require("./SudokuSolver/SudokuSolver");
+const SudokuSolver = require("./src/SudokuSolver/SudokuSolver");
 const app = express();
 
 const port = 3000;
