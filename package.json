@@ -22,6 +22,10 @@
   },
   "homepage": "https://github.com/exphoenee/SudokuSolver-API#readme",
   "dependencies": {
-    "express": "^4.18.1"
+    "express": "^4.18.1",
+    "SudokuSolver": "file:./src/SudokuSolver/SudokuSolver.mjs",
+    "SudokuBoard": "file:./src/SudokuBoard/SudokuBoard.mjs",
+    "Cell": "file:./src/SudokuBoard/Cell/Cell.mjs",
+    "Batch": "file:./src/SudokuBoard/Batch/Batch.mjs"
   }
 }
