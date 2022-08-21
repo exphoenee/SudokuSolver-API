@@ -4,7 +4,8 @@ const app = express();
 
 const port = 3000;
 
-app.listen(port, () => console.log("App is listening now!"));
+app.listen(port, () => console.log(`App is listening now on port ${port}!`));
+
 /*
 app.get("/", function (req, res) {
   res.send(
@@ -15,7 +16,7 @@ app.get("/", function (req, res) {
 
 app.get("/", function (req, res) {
   res.send(
-    "Normal usage of the API is send a string with get request to the solve endpoint, with the stringified puzzle e.g.: apipath/solve/2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3,\nyou can set the unfilled values to '0' cahracter, the default is '.'\n"
+    "Normal usage of the API is send a string with get request to the solve endpoint, with the stringified puzzle e.g.: apipath/solve/2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3"
   );
 });
 
