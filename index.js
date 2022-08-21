@@ -1,4 +1,4 @@
-const express = require("express");
+import express from "express";
 import SudokuSolver from "./src/SudokuSolver/SudokuSolver.mjs";
 const app = express();
 
