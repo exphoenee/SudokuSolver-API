@@ -11,10 +11,12 @@ export default class Batch {
   #minValue;
   #maxValue;
   #cellNumber;
+  #type;
 
-  constructor(id, cellNumber) {
+  constructor(id, cellNumber, type) {
     this.#id = id;
     this.#cellNumber = cellNumber;
+    this.#type = type;
   }
 
   get id() {
@@ -52,8 +54,8 @@ export default class Batch {
     if (this.#cells.length >= this.#cellNumber) {
       allowed = false;
       console.error(
-        `There is more cells in this batch (${
-          this.#cells.length
+        `There is more cells (${this.#cells.length}) in this batch (${
+          this.#type
         }) then allowed (${this.#cellNumber}).`
       );
     }
