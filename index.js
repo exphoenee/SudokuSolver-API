@@ -1,5 +1,6 @@
 import express from "express";
 import SudokuSolver from "./src/SudokuSolver/SudokuSolver.mjs";
+import SudokuBoard from "./src/SudokuBoard/SudokuBoard.mjs";
 
 const app = express();
 
@@ -26,8 +27,9 @@ app.get("/solve/:puzzle", function (req, res) {
   const xdim = 9;
   const ydim = 9;
 
-  const sudoku = new SudokuSolver(Math.sqrt(xdim), Math.sqrt(ydim));
-  const solution = sudoku.solvePuzzle({
+  const board = new SudokuBoard(Math.sqrt(xdim), Math.sqrt(ydim));
+  const solver = new SudokuSolver(board);
+  const solution = solver.solvePuzzle({
     puzzle,
     format: "string",
     unfilledChar: ".",
