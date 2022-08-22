@@ -105,7 +105,10 @@ const cases = [
   },
   {
     caseDesc: "Setting the board to puzzle as string.",
-    first: () => board.setBoard(puzzleStr),
+    first: () => {
+      board.setBoard(puzzleStr);
+      return puzzleStr;
+    },
     check: () => board.getCellValues({ format: "2D" }),
     excepted: puzzle2d,
   },
