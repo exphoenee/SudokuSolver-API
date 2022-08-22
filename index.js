@@ -9,14 +9,14 @@ app.listen(port, () => console.log(`App is listening now on port ${port}!`));
 /*
 app.get("/", function (req, res) {
   res.send(
-    "Normal usage of the API is send a string with get request to the solve endpoint, with the stringified puzzle and the dimension x and y of the sudoku board e.g.: apipath/solve/2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3/9/9,\nyou can set the unfilled values to '0' cahracter, the default is '.'\n"
+    "Normal usage of the API is send a string with get request to the solve endpoint, with the stringified puzzle and the dimension x and y of the sudoku board e.g.: apipath/solve/2,.,.,.,.,.,.,.,.,.,.,.,.,.,6,2,.,.,.,.,1,.,.,.,.,7,.,.,.,6,.,.,8,.,.,.,3,.,.,.,9,.,.,.,7,.,.,.,6,.,.,4,.,.,.,4,.,.,.,.,8,.,.,.,.,5,2,.,.,.,.,.,.,.,.,.,.,.,.,.,3/9/9,\nyou can set the unfilled values to '0' cahracter, the default is '.'\n"
   );
 });
 */
 
 app.get("/", function (req, res) {
   res.send(
-    "Normal usage of the API is send a string with get request to the solve endpoint, with the stringified puzzle e.g.: apipath/solve/2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3"
+    "Normal usage of the API is send a string with get request to the solve endpoint, with the stringified puzzle, the values separated with coma e.g.: apipath/solve/2,.,.,.,.,.,.,.,.,.,.,.,.,.,6,2,.,.,.,.,1,.,.,.,.,7,.,.,.,6,.,.,8,.,.,.,3,.,.,.,9,.,.,.,7,.,.,.,6,.,.,4,.,.,.,4,.,.,.,.,8,.,.,.,.,5,2,.,.,.,.,.,.,.,.,.,.,.,.,.,3"
   );
 });
 
