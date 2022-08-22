@@ -1,4 +1,5 @@
 "use strict";
+import SudokuBoard from "../SudokuBoard/SudokuBoard.mjs";
 import SudokuSolver from "../SudokuSolver/SudokuSolver.mjs";
 
 export default class SudokuRenderer {
@@ -17,9 +18,8 @@ export default class SudokuRenderer {
   constructor(boxSizeX, boxSizeY, puzzle = null) {
     //using the SudokuBoard calss for handling the sudoku board
 
-    this.#solver = new SudokuSolver(boxSizeX, boxSizeY, puzzle);
-
-    this.#sudokuboard = this.#solver.sudokuboard;
+    this.#sudokuboard = new SudokuBoard(boxSizeX, boxSizeY, puzzle);
+    this.#solver = new SudokuSolver(this.#sudokuboard);
 
     this.#boxSizeX = boxSizeX;
     this.#boxSizeY = boxSizeY;
