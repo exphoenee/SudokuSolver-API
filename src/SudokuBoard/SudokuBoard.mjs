@@ -52,6 +52,16 @@ export default class SudokuBoard {
     this.createBoxes();
   }
 
+  /* gives back the size of the board */
+  get boardSize() {
+    return {
+      x: this.#dimensionX,
+      y: this.#dimensionY,
+      boxSizeX: this.#boxSizeX,
+      boxSizeY: this.#boxSizeY,
+    };
+  }
+
   /* Generating all the cells what the board contains. Here is passing down to the cells every information which is beolngs to the cell:
    * x and y coordinate,
    * id of the cell,
