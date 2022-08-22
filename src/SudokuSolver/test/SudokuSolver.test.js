@@ -2,6 +2,7 @@
 
 import { batchAssert } from "../../test/assert.mjs";
 import SudokuSolver from "../SudokuSolver.mjs";
+import SudokuBoard from "../../SudokuBoard/SudokuBoard.mjs";
 import { clearBoardInfo } from "./SudokuSolver.exceptions.mjs";
 import {
   claerBoardSolution,
@@ -17,7 +18,8 @@ import {
   wrongStr,
 } from "../../Model/Puzzles.mjs";
 
-const solver = new SudokuSolver(3, 3);
+const sudokuboard = new SudokuBoard(3, 3);
+const solver = new SudokuSolver(sudokuboard);
 
 const cases = [
   {

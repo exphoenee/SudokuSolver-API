@@ -12,11 +12,12 @@ export default class SudokuBoard {
   #dimensionX;
   #dimensionY;
   #cellNumber;
-  #maxNumber;
+  #boxSize;
   #cells;
   #rows;
   #cols;
   #boxes;
+  #separator;
 
   constructor(boxSizeX, boxSizeY, puzzle = null) {
     this.#boxSizeX = boxSizeX;
@@ -24,7 +25,8 @@ export default class SudokuBoard {
     this.#dimensionX = boxSizeX ** 2;
     this.#dimensionY = boxSizeY ** 2;
     this.#cellNumber = this.#dimensionX * this.#dimensionY;
-    this.#maxNumber = this.#boxSizeX * this.#boxSizeY;
+    this.#boxSize = this.#boxSizeX * this.#boxSizeY;
+    this.#separator = ",";
     this.#cells = [];
     this.#rows = [];
     this.#cols = [];
@@ -48,6 +50,16 @@ export default class SudokuBoard {
     this.createRows();
     this.createCols();
     this.createBoxes();
+  }
+
+  /* gives back the size of the board */
+  get boardSize() {
+    return {
+      x: this.#dimensionX,
+      y: this.#dimensionY,
+      boxSizeX: this.#boxSizeX,
+      boxSizeY: this.#boxSizeY,
+    };
   }
 
   /* Generating all the cells what the board contains. Here is passing down to the cells every information which is beolngs to the cell:
@@ -77,7 +89,7 @@ export default class SudokuBoard {
             accepted: {
               unfilled: 0,
               min: 1,
-              max: this.#maxNumber,
+              max: this.#boxSize,
             },
             given: false,
             issued: false,
@@ -114,38 +126,47 @@ export default class SudokuBoard {
   }
 
   /* filtering a cells of batch with same batch id
-  arg:    * dimension (integer) the length of the batch
-          * id (integer) the id of the Batch that should filtered
+  arg:    * cellsInBatch (integer) the length of the batch
+          * numberOfBatches (string) how many batch there are
+          * id (string) the type of the Batch that should filtered
   return: an array of cells */
-  #filterSameBatchID(dimension, id) {
+  #filterSameBatchID(numberOfBatches, cellsInBatch, id) {
     const collector = [];
-    for (let i = 0; i < dimension; i++) {
-      const batch = new Batch(i, dimension);
+    for (let i = 0; i < numberOfBatches; i++) {
+      const batch = new Batch(i, cellsInBatch, id);
       this.#cells
         .filter((cell) => cell[id] == i)
         .forEach((cell) => batch.addCell(cell));
       collector.push(batch);
     }
-    if (collector.length !== dimension)
-      console.error(
-        `There is more columns (${collector.length}) then allowed (${dimension}).`
-      );
     return collector;
   }
 
   /* filtering out the cells, that are in the same column, putting into a Batch, that handle the columns */
   createCols() {
-    this.#cols = this.#filterSameBatchID(this.#dimensionX, "x");
+    this.#cols = this.#filterSameBatchID(
+      this.#dimensionX,
+      this.#dimensionY,
+      "x"
+    );
   }
 
   /* filtering out the cells, that are in the same rows, putting into a Batch, that handle the rows */
   createRows() {
-    this.#rows = this.#filterSameBatchID(this.#dimensionY, "y");
+    this.#rows = this.#filterSameBatchID(
+      this.#dimensionY,
+      this.#dimensionX,
+      "y"
+    );
   }
 
   /* filtering out the cells, that are in the same boxes, putting into a Batch, that handle the boxes */
   createBoxes() {
-    this.#boxes = this.#filterSameBatchID(this.#cellNumber, "boxId");
+    this.#boxes = this.#filterSameBatchID(
+      this.#boxSize,
+      this.#boxSize,
+      "boxId"
+    );
   }
 
   /* gives a row according to the given row number
@@ -394,7 +415,7 @@ export default class SudokuBoard {
             } element.`,
           ]
       : typeof board === "string"
-      ? board.length === this.#cellNumber
+      ? board.split(this.#separator).length === this.#cellNumber
         ? ["string"]
         : [
             "err",
@@ -419,7 +440,7 @@ export default class SudokuBoard {
     };
 
     const ConvertStrTo1D = (board) => {
-      return conver1Dto2D(board.split("").map((cell) => +cell));
+      return conver1Dto2D(board.split(",").map((cell) => +cell));
     };
 
     let convertedBoard;
@@ -467,7 +488,7 @@ export default class SudokuBoard {
     let res = this.#cells.map((cell) => cell.value);
 
     if (format.toUpperCase() === "STRING") {
-      return res.join("").replace(/0/g, unfilledChar || 0);
+      return res.join(",").replace(/0/g, unfilledChar || 0);
     } else if (format.toUpperCase() === "2D") {
       const board2D = [];
       while (res.length) board2D.push(res.splice(0, this.#dimensionX));

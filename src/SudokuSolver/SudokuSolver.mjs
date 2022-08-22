@@ -7,14 +7,14 @@ export default class SudokuSolver {
   #boxSizeY;
   #puzzle;
 
-  constructor(boxSizeX, boxSizeY, puzzle = null) {
+  constructor(sudokuboard) {
     //the size of a section and matrix of sections n x n, but the css isn't made for other sizes only 3 x 3 sudokus...
-    this.#boxSizeX = boxSizeX || 3;
-    this.#boxSizeY = boxSizeY || 3;
-    this.#puzzle = puzzle;
+    this.#boxSizeX = sudokuboard.boardSize.boxSizeX;
+    this.#boxSizeY = sudokuboard.boardSize.boxSizeY;
+    this.#puzzle = sudokuboard.getCellValues({ format: "2D" });
 
     //using the SudokuBoard calss for handling the sudoku board
-    this.#sudokuboard = new SudokuBoard(this.#boxSizeX, this.#boxSizeY, puzzle);
+    this.#sudokuboard = sudokuboard;
   }
 
   /* gives back info form all the cells in the board
