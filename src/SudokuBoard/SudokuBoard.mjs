@@ -355,6 +355,18 @@ export default class SudokuBoard {
     return false;
   }
 
+  /* the method gives back a free cell with the less possiblity */
+  getFreeCellWithLessPosiblity() {
+    const freeCell = this.#cells
+      .filter((cell) => cell.value == 0)
+      .map((cell) => {
+        return { cell, cellPosiblities: this.getCellPossiblities(cell) };
+      })
+      .sort((a, b) => a.cellPosiblities - b.cellPosiblities)[0].cell;
+    if (freeCell) return freeCell;
+    return false;
+  }
+
   /* gives the coords of the first free cell
     arg:    null
     return: Object {x, y} the two coorinate of the cell */
