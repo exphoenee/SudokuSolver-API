@@ -24,6 +24,7 @@ import {
   dupsInSecondCol,
   dupsInFirstBox,
   dupsInSecondBox,
+  possibilityMap,
 } from "./SudokuBoard.exceptions.mjs";
 import Batch from "../Batch/Batch.mjs";
 import Cell from "../Cell/Cell.mjs";
@@ -134,14 +135,14 @@ const cases = [
   {
     caseDesc: "Getting info of first cell, the board is set to puzzle.",
     first: null,
-    check: () => board.getCellByCoords(0, 0).info,
+    check: () => board.getCell({ x: 0, y: 0 }).info,
     excepted: puzzleFirstCell,
   },
   {
     caseDesc:
       "Getting getting the info of X3 - Y6 cell, the board is set to puzzle.",
     first: null,
-    check: () => board.getCellByCoords(3, 5).info,
+    check: () => board.getCell({ x: 3, y: 5 }).info,
     excepted: puzzleX3Y6Cell,
   },
   {
@@ -154,7 +155,7 @@ const cases = [
     caseDesc:
       "Finding the first free cell of the board, the board is set to puzzle.",
     first: null,
-    check: () => board.getFirstFeeCell().info,
+    check: () => board.getFirstFreeCell().info,
     excepted: firstFreeCell,
   },
   {
@@ -172,51 +173,51 @@ const cases = [
   },
   {
     caseDesc:
-      "Setting the first free cell value to 1 thorug coordinate, checking the value of that.",
+      "Setting the second free cell value to 1 throug coordinate, checking the value of that.",
     first: () => board.setCellValue({ x: 1, y: 0 }, 1),
-    check: () => board.getCellByCoords(1, 0).info,
+    check: () => board.getCell({ x: 1, y: 0 }).info,
     excepted: { ...firstFreeCell, value: 1, issued: true },
   },
   {
     caseDesc:
       "Setting the first free cell value to 0 thorug id selector, checking the value of that.",
     first: () => board.setCellValue({ id: 1 }, 0),
-    check: () => board.getCellByCoords(1, 0).info,
+    check: () => board.getCell({ x: 1, y: 0 }).info,
     excepted: { ...firstFreeCell, value: 0, issued: false },
   },
   {
     caseDesc:
       "Setting the first free cell value to 2 throug Cell reference, checking the value of that.",
-    first: () => board.setCellValue({ cell: board.getFirstFeeCell() }, 1),
-    check: () => board.getCellByCoords(1, 0).info,
+    first: () => board.setCellValue({ cell: board.getFirstFreeCell() }, 1),
+    check: () => board.getCell({ x: 1, y: 0 }).info,
     excepted: { ...firstFreeCell, value: 1, issued: true },
   },
   {
     caseDesc:
       "Trying to set first free cell to invalid value: 11, checking the value of that.",
     first: () => board.setCellValue({ x: 1, y: 0 }, 11),
-    check: () => board.getCellByCoords(1, 0).info,
+    check: () => board.getCell({ x: 1, y: 0 }).info,
     excepted: { ...firstFreeCell, value: 0, issued: false },
   },
   {
     caseDesc:
       "Trying to set first free cell to invalid value: 'a' string, checking the value of that.",
     first: () => board.setCellValue({ x: 1, y: 0 }, "a"),
-    check: () => board.getCellByCoords(1, 0).info,
+    check: () => board.getCell({ x: 1, y: 0 }).info,
     excepted: { ...firstFreeCell, value: 0, issued: false },
   },
   {
     caseDesc:
       "Trying to set first free cell to invalid value: true boolean, checking the value of that.",
     first: () => board.setCellValue({ x: 1, y: 0 }, true),
-    check: () => board.getCellByCoords(1, 0).info,
+    check: () => board.getCell({ x: 1, y: 0 }).info,
     excepted: { ...firstFreeCell, value: 0, issued: false },
   },
   {
     caseDesc:
       "Trying to set first free cell to invalid value: true boolean, checking the value of that.",
     first: () => board.setCellValue({ x: 1, y: 0 }, false),
-    check: () => board.getCellByCoords(1, 0).info,
+    check: () => board.getCell({ x: 1, y: 0 }).info,
     excepted: { ...firstFreeCell, value: 0, issued: false },
   },
   {
@@ -327,7 +328,7 @@ const cases = [
   {
     caseDesc: "After filled the first free cell, find the next one.",
     first: null,
-    check: () => board.getFirstFeeCell().info,
+    check: () => board.getFirstFreeCell().info,
     excepted: secondFreeCell,
   },
   {
@@ -448,63 +449,63 @@ const cases = [
   {
     caseDesc: "Checks the board has duplicated cells in the first row.",
     first: null,
-    check: () => board.hasRowDuplicates(0),
+    check: () => board.hasBatchDuplicates(board.getRow(0)),
     excepted: true,
   },
   {
     caseDesc: "Checks the board has duplicated cells in the second row.",
     first: null,
-    check: () => board.hasRowDuplicates(1),
+    check: () => board.hasBatchDuplicates(board.getRow(1)),
     excepted: true,
   },
   {
     caseDesc: "Checks the board has duplicated cells in the fifth row.",
     first: null,
-    check: () => board.hasRowDuplicates(4),
+    check: () => board.hasBatchDuplicates(board.getRow(4)),
     excepted: false,
   },
   {
     caseDesc: "Checks the board has duplicated cells in the first column.",
     first: null,
-    check: () => board.hasColumnDuplicates(0),
+    check: () => board.hasBatchDuplicates(board.getCol(0)),
     excepted: true,
   },
   {
     caseDesc: "Checks the board has duplicated cells in the second column.",
     first: null,
-    check: () => board.hasColumnDuplicates(1),
+    check: () => board.hasBatchDuplicates(board.getCol(1)),
     excepted: true,
   },
   {
     caseDesc: "Checks the board has duplicated cells in the fifth column.",
     first: null,
-    check: () => board.hasColumnDuplicates(4),
+    check: () => board.hasBatchDuplicates(board.getCol(4)),
     excepted: false,
   },
   {
     caseDesc: "Checks the board has duplicated cells in the first box.",
     first: null,
-    check: () => board.hasBoxDuplicates(0),
+    check: () => board.hasBatchDuplicates(board.getBox(0)),
     excepted: true,
   },
   {
     caseDesc: "Checks the board has duplicated cells in the second box.",
     first: null,
-    check: () => board.hasBoxDuplicates(1),
+    check: () => board.hasBatchDuplicates(board.getBox(1)),
     excepted: false,
   },
   {
     caseDesc:
       "Setting the board to puzzle as 2D array again, and fingind the first free cell, and checking tha possiblities of that. It must be wrong because that is issued currently.",
     first: null,
-    check: () => board.getCellPossiblities(firstFreeCell),
+    check: () => board.getCellPossibilities(firstFreeCell),
     excepted: [4, 5, 8],
   },
   {
     caseDesc:
       "Setting the board to puzzle as 2D array again,, and fingind the first free cell, and checking tha possiblities of that.",
     first: () => board.setBoard(puzzle2d),
-    check: () => board.getCellPossiblities(firstFreeCell),
+    check: () => board.getCellPossibilities(firstFreeCell),
     excepted: [4, 5, 8],
   },
   {
@@ -564,110 +565,133 @@ const cases = [
   {
     caseDesc: "Getting the missing values from the first row.",
     first: null,
-    check: () => board.getMissingFromRow(0),
+    check: () => board.getMissingFromBatch(board.getRow(0)),
     excepted: [2, 4, 5, 6, 8, 9],
   },
   {
     caseDesc: "Getting the missing values from the third row.",
     first: null,
-    check: () => board.getMissingFromRow(2),
+    check: () => board.getMissingFromBatch(board.getRow(2)),
     excepted: [1, 4, 6, 7, 8],
   },
   {
     caseDesc: "Getting the missing values from the eigth row.",
     first: null,
-    check: () => board.getMissingFromRow(7),
+    check: () => board.getMissingFromBatch(board.getRow(7)),
     excepted: [3, 4, 6, 9],
   },
   {
     caseDesc: "Getting the missing values from the first column.",
     first: null,
-    check: () => board.getMissingFromCol(0),
+    check: () => board.getMissingFromBatch(board.getCol(0)),
     excepted: [2, 4, 7, 8],
   },
   {
     caseDesc: "Getting the missing values from the third column.",
     first: null,
-    check: () => board.getMissingFromCol(2),
+    check: () => board.getMissingFromBatch(board.getCol(2)),
     excepted: [2, 3, 4, 7, 9],
   },
   {
     caseDesc: "Getting the missing values from the eigth column.",
     first: null,
-    check: () => board.getMissingFromCol(7),
+    check: () => board.getMissingFromBatch(board.getCol(7)),
     excepted: [2, 3, 5, 6, 7, 8],
   },
   {
     caseDesc: "Getting the missing values from the first box.",
     first: null,
-    check: () => board.getMissingFromBox(0),
+    check: () => board.getMissingFromBatch(board.getBox(0)),
     excepted: [2, 4, 5, 7, 8],
   },
   {
     caseDesc: "Getting the missing values from the third box.",
     first: null,
-    check: () => board.getMissingFromBox(2),
+    check: () => board.getMissingFromBatch(board.getBox(2)),
     excepted: [1, 5, 6, 7, 8],
   },
   {
     caseDesc: "Getting the missing values from the eigth box.",
     first: null,
-    check: () => board.getMissingFromBox(7),
+    check: () => board.getMissingFromBatch(board.getBox(7)),
     excepted: [2, 3, 4, 8, 9],
   },
   {
     caseDesc: "Getting the filled values from the first row.",
     first: null,
-    check: () => board.getFilledFromRow(0),
+    check: () => board.getFilledFromBatch(board.getRow(0)),
     excepted: [1, 3, 7],
   },
   {
     caseDesc: "Getting the filled values from the third row.",
     first: null,
-    check: () => board.getFilledFromRow(2),
+    check: () => board.getFilledFromBatch(board.getRow(2)),
     excepted: [2, 3, 5, 9],
   },
   {
     caseDesc: "Getting the filled values from the eigth row.",
     first: null,
-    check: () => board.getFilledFromRow(7),
+    check: () => board.getFilledFromBatch(board.getRow(7)),
     excepted: [1, 2, 5, 7, 8],
   },
   {
     caseDesc: "Getting the filled values from the first column.",
     first: null,
-    check: () => board.getFilledFromCol(0),
+    check: () => board.getFilledFromBatch(board.getCol(0)),
     excepted: [1, 3, 5, 6, 9],
   },
   {
     caseDesc: "Getting the filled values from the third column.",
     first: null,
-    check: () => board.getFilledFromCol(2),
+    check: () => board.getFilledFromBatch(board.getCol(2)),
     excepted: [1, 5, 6, 8],
   },
   {
     caseDesc: "Getting the filled values from the eigth column.",
     first: null,
-    check: () => board.getFilledFromCol(7),
+    check: () => board.getFilledFromBatch(board.getCol(7)),
     excepted: [1, 4, 9],
   },
   {
     caseDesc: "Getting the filled values from the first box.",
     first: null,
-    check: () => board.getFilledFromBox(0),
+    check: () => board.getFilledFromBatch(board.getBox(0)),
     excepted: [1, 3, 6, 9],
   },
   {
     caseDesc: "Getting the filled values from the third box.",
     first: null,
-    check: () => board.getFilledFromBox(2),
+    check: () => board.getFilledFromBatch(board.getBox(2)),
     excepted: [2, 3, 4, 9],
   },
   {
     caseDesc: "Getting the filled values from the eigth box.",
     first: null,
-    check: () => board.getFilledFromBox(7),
+    check: () => board.getFilledFromBatch(board.getBox(7)),
     excepted: [1, 5, 6, 7],
+  },
+  {
+    caseDesc: "Getting the the cell with less possiblity.",
+    first: null,
+    check: () => board.getFreeCellWithLessPosiblity().info,
+    excepted: {
+      id: 12,
+      given: false,
+      issued: false,
+      value: 0,
+      x: 3,
+      y: 1,
+      bx: 1,
+      by: 0,
+      boxId: 1,
+      accepted: { unfilled: 0, min: 1, max: 9 },
+    },
+  },
+  {
+    caseDesc: "Generating possibilty map.",
+    first: () => board.updatePossibilityMap(),
+    check: () => board.getPossibilityMap(),
+    excepted: possibilityMap,
   },
 ];
 
