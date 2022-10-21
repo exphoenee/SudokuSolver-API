@@ -17,7 +17,7 @@ import {
   wrong2d,
   wrong1d,
   wrongStr,
-} from "../../Model/Puzzles.mjs";
+} from "../../Model/3x3_Puzzles.mjs";
 
 const sudokuboard = new SudokuBoard(3, 3);
 const solver = new SudokuSolver(sudokuboard);
