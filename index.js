@@ -46,3 +46,5 @@ app.get("/solve/:puzzle", function (req, res) {
 });
 
 app.listen(PORT, () => console.log(`App is listening now on port ${PORT}!`));
+
+module.exports = app;
