@@ -131,7 +131,6 @@ export default class SudokuRenderer {
         [0, 8, 0, 0, 0, 2, 0, 6, 0],
       ],
     };
-
     //rendering the table
     this.#render();
   }
