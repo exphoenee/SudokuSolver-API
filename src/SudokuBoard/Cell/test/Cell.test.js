@@ -242,6 +242,24 @@ const cases = [
     check: () => cell.ref,
     excepted: 3,
   },
+  {
+    caseDesc: "Get valid values",
+    first: null,
+    check: () => cell.validValues,
+    excepted: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+  },
+  {
+    caseDesc: "Get valid possibilities",
+    first: null,
+    check: () => cell.possibilities,
+    excepted: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+  },
+  {
+    caseDesc: "Get valid possibilities",
+    first: () => cell.setPossibilities([1]),
+    check: () => cell.possibilities,
+    excepted: [1],
+  },
 ];
 
 batchAssert(cases, { showFailed: true, showSuccessed: false });

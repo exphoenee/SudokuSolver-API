@@ -25,7 +25,7 @@ import {
   dupsInFirstBox,
   dupsInSecondBox,
   possibilityMap,
-} from "./SudokuBoard.exceptions.mjs";
+} from "./3x3_SudokuBoard.exceptions.mjs";
 import Batch from "../Batch/Batch.mjs";
 import Cell from "../Cell/Cell.mjs";
 import SudokuBoard from "../SudokuBoard.mjs";
@@ -39,7 +39,7 @@ import {
   wrong2d,
   wrong1d,
   wrongStr,
-} from "../../Model/Puzzles.mjs";
+} from "../../Model/3x3_Puzzles.mjs";
 
 const board = new SudokuBoard(3, 3);
 

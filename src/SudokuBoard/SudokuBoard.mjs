@@ -18,8 +18,15 @@ export default class SudokuBoard {
   #cols;
   #boxes;
   #separator;
+  #warnings;
+  #errors;
 
-  constructor(boxSizeX, boxSizeY, puzzle = null) {
+  constructor(
+    boxSizeX,
+    boxSizeY,
+    puzzle = null,
+    { warnings, errors } = { warnings: false, errors: false }
+  ) {
     this.#boxSizeX = boxSizeX;
     this.#boxSizeY = boxSizeY;
     this.#dimensionX = boxSizeX ** 2;
@@ -31,8 +38,10 @@ export default class SudokuBoard {
     this.#rows = [];
     this.#cols = [];
     this.#boxes = [];
+    this.#warnings = warnings;
+    this.#errors = errors;
 
-    this.generateBoard();
+    this.#generateBoard();
 
     if (this.#boardFormat(puzzle)[0] !== "err") {
       if (this.#boardFormat(puzzle)[0] === "1D") {
@@ -45,11 +54,11 @@ export default class SudokuBoard {
 
   /* This method organizing the cells into rows, columns, and boxes.
   In this calss everything goes by references. */
-  generateBoard() {
-    this.createCells();
-    this.createRows();
-    this.createCols();
-    this.createBoxes();
+  #generateBoard() {
+    this.#createCells();
+    this.#createRows();
+    this.#createCols();
+    this.#createBoxes();
   }
 
   /* gives back the size of the board */
@@ -73,7 +82,7 @@ export default class SudokuBoard {
    ** unfilled value is that value what means the cell is unfilled
    * given, the cell has an initial value or not
    * issued, the cell has an issue or not */
-  createCells() {
+  #createCells() {
     if (this.#cells.length <= this.#cellNumber) {
       for (let y = 0; y < this.#dimensionY; y++) {
         for (let x = 0; x < this.#dimensionX; x++) {
@@ -99,15 +108,16 @@ export default class SudokuBoard {
         }
       }
     } else {
-      console.error(
-        `Something went wrong, only number of ${
-          this.#cellNumber
-        } cells allowed you tried to create the +1.`
-      );
+      this.#errors &&
+        console.error(
+          `Something went wrong, only number of ${
+            this.#cellNumber
+          } cells allowed you tried to create the +1.`
+        );
     }
   }
 
-  /* gives the values of all the cells in the board
+  /* gives all the cells in the board
   arg:    null
   return: 1D of Cells (Object) */
   get cells() {
@@ -143,7 +153,7 @@ export default class SudokuBoard {
   }
 
   /* filtering out the cells, that are in the same column, putting into a Batch, that handle the columns */
-  createCols() {
+  #createCols() {
     this.#cols = this.#filterSameBatchID(
       this.#dimensionX,
       this.#dimensionY,
@@ -152,7 +162,7 @@ export default class SudokuBoard {
   }
 
   /* filtering out the cells, that are in the same rows, putting into a Batch, that handle the rows */
-  createRows() {
+  #createRows() {
     this.#rows = this.#filterSameBatchID(
       this.#dimensionY,
       this.#dimensionX,
@@ -161,12 +171,19 @@ export default class SudokuBoard {
   }
 
   /* filtering out the cells, that are in the same boxes, putting into a Batch, that handle the boxes */
-  createBoxes() {
+  #createBoxes() {
     this.#boxes = this.#filterSameBatchID(
       this.#boxSize,
       this.#boxSize,
       "boxId"
     );
+  }
+
+  /* gives a column according to the given column number
+  arg:    colNr (Integer)
+  return: Batch (Objects) */
+  getCol(colNr) {
+    return this.#cols[colNr];
   }
 
   /* gives a row according to the given row number
@@ -179,15 +196,22 @@ export default class SudokuBoard {
   /* gives all rows in a 2D array
   arg:    rowNr (Integer)
   return: 1D array of Batch (Objects) */
-  getAllRows() {
-    return this.#rows;
+  getAllCols() {
+    return this.#cols;
   }
 
-  /* gives a column according to the given column number
-  arg:    colNr (Integer)
-  return: Batch (Objects) */
-  getCol(colNr) {
-    return this.#cols[colNr];
+  /* gives all rows in a 2D array
+  arg:    rowNr (Integer)
+  return: 1D array of Batch (Objects) */
+  getAllBoxes() {
+    return this.#boxes;
+  }
+
+  /* gives all rows in a 2D array
+  arg:    rowNr (Integer)
+  return: 1D array of Batch (Objects) */
+  getAllRows() {
+    return this.#rows;
   }
 
   /* gives a section according to the given section number
@@ -225,46 +249,30 @@ export default class SudokuBoard {
     return this.#filterValuesFromBatch(this.getBox(boxNr));
   }
 
-  /* gives the missing numbers of a row according to the given row number
-  arg:    rowNr (Integer)
-  return: array of integers that are the possible values what missing from the row  */
-  getMissingFromRow(rowNr) {
-    return this.getRow(rowNr).getMissingNumbers();
-  }
-
-  /* gives into the row already written numbers according to the given row number
-  arg:    rowNr (Integer)
-  return: array of integers that are the possible values what are in the row already */
-  getFilledFromRow(rowNr) {
-    return this.getRow(rowNr).getFilledNumbers();
-  }
-
-  /* gives the missing numbers of a column according to the given column number
-  arg:    column (Integer)
-  return: array of integers that are the possible values what missing from the column  */
-  getMissingFromCol(colNr) {
-    return this.getCol(colNr).getMissingNumbers();
-  }
-
-  /* gives into the column already written numbers according to the given column number
-  arg:    colNr (Integer)
-  return: array of integers that are the possible values what are in the column already */
-  getFilledFromCol(colNr) {
-    return this.getCol(colNr).getFilledNumbers();
+  /* gives into the section already written numbers according to the given section number
+  arg:    batch (Integer)
+  return: array of integers that are the possible values what are in the section already */
+  getFilledFromBatch(batch) {
+    return batch.getFilledNumbers();
   }
 
   /* gives the missing numbers of a section according to the given section number
   arg:    boxNr (Integer)
   return: array of integers that are the possible values what missing from the section  */
-  getMissingFromBox(boxNr) {
-    return this.getBox(boxNr).getMissingNumbers();
+  getMissingFromBatch(batch) {
+    return batch.getMissingNumbers();
   }
 
-  /* gives into the section already written numbers according to the given section number
-  arg:    boxNr (Integer)
-  return: array of integers that are the possible values what are in the section already */
-  getFilledFromBox(boxNr) {
-    return this.getBox(boxNr).getFilledNumbers();
+  /* gives the batches where the cell is in
+  arg:    cell (Object) or coordinates x and y (Integer, Integer)
+  return: array of Batch (Objects) in order column, row, box */
+  getBatchesOfCell({ x, y, cell, id }) {
+    const selectedCell = this.getCell({ x, y, cell, id });
+    return [
+      this.getCol(selectedCell.x),
+      this.getRow(selectedCell.y),
+      this.getBox(selectedCell.boxId),
+    ];
   }
 
   /* this method gives the numbers what can we write into a cell, the cell couldn't has a value what is represented in the column, the row and the box thath the cell is contained,
@@ -274,12 +282,13 @@ export default class SudokuBoard {
                   * y (integer),
                   * cell (integer),
       return:   array of integer what is missing form the row, column, and box of the cell */
-  getCellPossiblities({ x, y, cell }) {
-    !cell && (cell = this.getCellByCoords(x, y));
+  getCellPossibilities({ x, y, cell, id }) {
+    const selectedCell = this.getCell({ x, y, cell, id });
 
-    const missingFromCol = this.getMissingFromCol(cell.x);
-    const missingFromRow = this.getMissingFromRow(cell.y);
-    const missingFromBox = this.getMissingFromBox(cell.boxId);
+    const [missingFromCol, missingFromRow, missingFromBox] =
+      this.getBatchesOfCell({ cell: selectedCell }).map((batch) =>
+        batch.getMissingNumbers()
+      );
 
     const intersection = (arr1, arr2) =>
       arr1.filter((value) => arr2.includes(value));
@@ -290,36 +299,37 @@ export default class SudokuBoard {
     );
   }
 
-  /* checking that the column has duplicates
-    arg:    colNr (integers) the column number of the board
-    return: true or false that means there are a duplicates for this column */
-  hasColumnDuplicates(colNr) {
-    return this.getCol(colNr).hasDuplicates();
-  }
-
-  /* checking that the row has duplicates
-    arg:    rowNr (integers) the row number of the board
-    return: true or false that means there are a duplicates for this row */
-  hasRowDuplicates(rowNr) {
-    return this.getRow(rowNr).hasDuplicates();
-  }
-
-  /* checking that the box has duplicates
-    arg:    boxNr (integers) the box number of the board
+  /* checking that the batch has duplicates
+    arg:    Batch (Object)
     return: true or false that means there are a duplicates for this box */
-  hasBoxDuplicates(boxNr) {
-    return this.getBox(boxNr).hasDuplicates();
+  hasBatchDuplicates(batch) {
+    return batch.hasDuplicates();
   }
 
   /* checking that the cell has duplicates its row, column or section arg:    x, y (integers) the coordinates of the cell
     return: true or false that means there are a duplicates for this cell */
-  hasCellDuplicates({ x, y, cell }) {
-    if (!cell) cell = this.getCellByCoords(x, y);
-    return (
-      this.hasColumnDuplicates(cell.y) &&
-      this.hasRowDuplicates(cell.x) &&
-      this.hasBoxDuplicates(cell.boxId)
-    );
+  haselectedCellDuplicates({ x, y, cell, id }) {
+    const selectedCell = this.getCell({ x, y, cell, id });
+    return this.getBatchesOfCell({ selectedCell })
+      .map((batch) => batch.hasDuplicates())
+      .every((dups) => dups === true);
+  }
+
+  /* checking the given cell has duplicates its row, column or section and sets the cell with the duplicates to issued
+    arg:    Cell (object) x, y (integers) the coordinates of the cell
+    return: undefined */
+  #setCellIssue({ x, y, cell, id }) {
+    const selectedCell = this.getCell({ x, y, cell, id });
+    this.getBatchesOfCell({ x, y, selectedCell }).forEach((batch) => {
+      batch.cells.forEach((babthCell) => babthCell.unsetIssued());
+      batch.getDuplicateValuedCells().forEach((issuedCell) => {
+        this.#warnings &&
+          console.warn(
+            `This modification of cell with id: ${selectedCell.id} on coords x: ${selectedCell.x} y: ${selectedCell.y} in box id: ${selectedCell.boxId} to value: ${selectedCell.value} made the puzzle incorrect! Becuase the cell is a duplicate!`
+          );
+        issuedCell.setIssued();
+      });
+    });
   }
 
   /* the method gives the issued cells in an array
@@ -335,23 +345,88 @@ export default class SudokuBoard {
     ];
   }
 
+  /* the method sets the possiblities all the a cells that are in the same batches with the given cell
+  arg:    Cell (object) or coordinates x, y (integer, integer)
+  return: undefined */
+  #setCellPosiblities({ cell, x, y, id }) {
+    const selectedCell = this.getCell({ x, y, cell, id });
+
+    this.getBatchesOfCell({
+      x,
+      y,
+      selectedCell,
+    }).forEach((batch) =>
+      batch.cells.forEach((batchCell) => {
+        const possibilities = this.getCellPossibilities(batchCell);
+        if (possibilities.length > 0) {
+          batchCell.setPossibilities(possibilities);
+        } else {
+          this.#warnings &&
+            console.warn(
+              `This modification of cell with id: ${selectedCell.id} on coords x: ${selectedCell.x} y: ${selectedCell.y} in box id: ${selectedCell.boxId} to value: ${selectedCell.value} made the puzzle incorrect! Becuase the cell has no possibilities!`
+            );
+        }
+      })
+    );
+  }
+
   /* the method is checking the puzzle does or not any duplicates in the rows, columns or boxes
   arg:    null,
   return: boolen the puzzle is correct true, that means there aren't any duplicates */
   puzzleIsCorrect() {
-    const batches = [...this.#rows, ...this.#cols, ...this.#boxes];
-    for (let batch of batches) {
+    for (let batch of [...this.#rows, ...this.#cols, ...this.#boxes])
       if (batch.hasDuplicates()) return false;
-    }
+    for (let cell of this.cells)
+      if (cell.possibilities.length === 0) return false;
     return true;
   }
 
   /* gives the first free cell
     arg:    null
     return: Cell (Object) */
-  getFirstFeeCell() {
+  getFirstFreeCell() {
     const freeCell = this.#cells.find((cell) => cell.value == 0);
     if (freeCell) return freeCell;
+    return false;
+  }
+
+  /* Gives back the cells with value
+  arg:    value (Integer)
+  return: Cell (Object) */
+  getCellsByValue(value) {
+    return this.cells.filter((cell) => cell.value === value);
+  }
+
+  /* Gives sets the cell possiblities that we can write in the cell
+  arg:    null,
+  return:  */
+  updatePossibilityMap() {
+    this.cells.forEach((cell) =>
+      cell.setPossibilities(this.getCellPossibilities(cell))
+    );
+  }
+
+  /* Gives back the an array that contains the cell possiblities that we can write in the cell
+  arg:    null,
+  return: array of arrays of integers tha numbers that*/
+  getPossibilityMap() {
+    return this.cells.map((cell) => this.getCellPossibilities(cell));
+  }
+
+  /* the method gives back a free cell with the less possiblity
+  arg:    null
+  return a Cell (object) */
+  getFreeCellWithLessPosiblity() {
+    const freeCell = this.#cells
+      .filter((cell) => cell.value == 0)
+      .map((cell) => {
+        const possiblities = this.getCellPossibilities(cell);
+        return { cell, possiblities };
+      })
+      .sort((a, b) => a.possiblities.length - b.possiblities.length)[0].cell;
+
+    if (freeCell && this.getCellPossibilities(freeCell).length > 0)
+      return freeCell;
     return false;
   }
 
@@ -359,7 +434,7 @@ export default class SudokuBoard {
     arg:    null
     return: Object {x, y} the two coorinate of the cell */
   coordsOfFirstFreeCell() {
-    const freeCell = this.getFirstFeeCell();
+    const freeCell = this.getFirstFreeCell();
     if (freeCell) return { x: freeCell.x, y: freeCell.y };
     return false;
   }
@@ -368,25 +443,22 @@ export default class SudokuBoard {
     args:   x, y integers the coords what we would like to validate
     return: true is the coords are in range */
   validateCoord(x, y) {
-    return (
-      0 <= x && x <= this.#dimensionX - 1 && 0 <= y && y <= this.#dimensionY - 1
-    );
-  }
-
-  /* gives a cells by the given coordinates
-  arg:    x (integer) and y (integer) coordinates
-  return: Cell (Object) */
-  getCellByCoords(x, y) {
-    if (this.validateCoord(x, y)) {
-      return this.#cells.find((cell) => cell.x == x && cell.y == y);
+    if (
+      0 <= x &&
+      x <= this.#dimensionX - 1 &&
+      0 <= y &&
+      y <= this.#dimensionY - 1
+    ) {
+      return true;
     } else {
-      console.error(
-        `The x coordinate value must be between 1...${
-          this.#dimensionX
-        }, the y must be between 1...${
-          this.#dimensionY
-        }. You asked x: ${x} and y: ${y}.`
-      );
+      this.#errors &&
+        console.error(
+          `The x coordinate value must be between 1...${
+            this.#dimensionX
+          }, the y must be between 1...${
+            this.#dimensionY
+          }. You asked x: ${x} and y: ${y}.`
+        );
     }
   }
 
@@ -427,7 +499,9 @@ export default class SudokuBoard {
   }
 
   /* setBoard method sets all the cells of the table according to the given arguments.
-  arg:    board can be 1D array, 2D array or a string.
+  arg:
+      * board can be 1D array, 2D array or a string.
+      * setGiven - if true the cell sets to given, if false the cells will be not (that means the cell is the protected form user input, that is the part of the initial puzzle not the solution).
   return: void */
   setBoard(board, setGiven = false) {
     const [format, msg] = this.#boardFormat(board);
@@ -451,14 +525,17 @@ export default class SudokuBoard {
     if (convertedBoard) {
       convertedBoard.forEach((row, y) =>
         row.forEach((cellValue, x) => {
-          const cell = this.getCellByCoords(x, y);
-          cell.setValue(cellValue);
-          if (setGiven) cell.isFilled() ? cell.setGiven() : cell.unsetGiven();
+          const selectedCell = this.getCell({ x, y });
+          selectedCell.setValue(cellValue);
+          if (setGiven)
+            selectedCell.isFilled()
+              ? selectedCell.setGiven()
+              : selectedCell.unsetGiven();
         })
       );
       this.#setAllIssuedCells();
     } else {
-      console.error(msg);
+      this.#errors && console.error(msg);
     }
   }
 
@@ -477,7 +554,8 @@ export default class SudokuBoard {
   }
 
   /* gives the values of all the cells in the board
-  arg:    object with following keys:
+  arg:
+        *object literal with following keys:
           ** type: (string) can be 1D, 2D, or string, the format of the result
               1D is 1D array, 2D is 2D array, string is string
           ** unfilledChard
@@ -498,33 +576,46 @@ export default class SudokuBoard {
     } else return false;
   }
 
-  /* gives the value of a cells by the given coordinates
-  arg:    x (integer) and y (integer) coordinates
-  return: value of the cell (integer) */
-  getCellValue(x, y) {
-    return this.getCellByCoords(x, y).value;
-  }
-
-  /* sets the value of a cells by the given coordinates
-  arg:    x (integer) and y (integer) coordinates
-  return: void (undefined) */
-  setCellValue({ x, y, cell, id }, value) {
+  /* gives back a cell according to given coords or cell, or id
+    arg:
+        * object literal:
+          ** x, y (integer, integer) coordinates both is requierd,
+          ** cell easyly passing through,
+          ** id (integer) id of the cell
+    return:
+        * Cell (object) */
+  getCell({ x, y, cell, id }) {
     let selectedCell;
-    if (cell) {
+    if (cell instanceof Cell) {
       selectedCell = cell;
     } else if (x !== undefined && y !== undefined) {
-      selectedCell = this.getCellByCoords(x, y);
+      selectedCell = this.#cells.find(
+        (cell) => this.validateCoord(x, y) && cell.x === x && cell.y === y
+      );
     } else if (id !== undefined) {
       selectedCell = this.#cells.find((cell) => cell.id === id);
     } else {
-      console.error(
-        `The setCellValue arguments must be x (${x}), y (${y}), or a Cell (${cell}) object, or an id (${id})! There is no such cell that meets the requirements.`
-      );
+      this.#errors &&
+        console.error(
+          `The cell arguments must be x (${x}), y (${y}), or a Cell (${cell}) object, or an id (${id})! There is no such cell that meets the requirements.`
+        );
     }
+    return selectedCell;
+  }
 
+  /* sets the value of a cells by the given coordinates
+  arg:
+      * object literal:
+        **  Cell (object) or x (integer) and y (integer) coordinates or id
+      *  value (integer)
+  return: void (undefined) */
+  setCellValue({ x, y, cell, id }, value) {
+    const selectedCell = this.getCell({ x, y, cell, id });
     if (selectedCell) {
       selectedCell.setValue(value);
-      this.#setAllIssuedCells();
+
+      this.#setCellIssue(selectedCell);
+      this.#setCellPosiblities(selectedCell);
     }
   }
 

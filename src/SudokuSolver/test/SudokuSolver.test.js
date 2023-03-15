@@ -5,7 +5,8 @@ import SudokuSolver from "../SudokuSolver.mjs";
 import SudokuBoard from "../../SudokuBoard/SudokuBoard.mjs";
 import { clearBoardInfo } from "./SudokuSolver.exceptions.mjs";
 import {
-  claerBoardSolution,
+  claerBoardSolution1,
+  claerBoardSolution2,
   puzzle2d,
   puzzle1d,
   puzzleStr,
@@ -16,7 +17,7 @@ import {
   wrong2d,
   wrong1d,
   wrongStr,
-} from "../../Model/Puzzles.mjs";
+} from "../../Model/3x3_Puzzles.mjs";
 
 const sudokuboard = new SudokuBoard(3, 3);
 const solver = new SudokuSolver(sudokuboard);
@@ -32,7 +33,7 @@ const cases = [
     caseDesc: "Solving the clear board.",
     first: null,
     check: () => solver.solvePuzzle(),
-    excepted: claerBoardSolution,
+    excepted: claerBoardSolution2,
   },
   {
     caseDesc: "Setting the eazy puzzle to the board and solving that.",
@@ -101,6 +102,20 @@ const cases = [
     first: () => solver.clearBoard(),
     check: () => solver.convertPuzzle(puzzle1d, "string"),
     excepted: puzzleStr,
+  },
+  {
+    caseDesc:
+      "Setting the eazy puzzle to the board as 2D array and trying to solve that under 1 ms.",
+    first: () => solver.setBoard(puzzle2d),
+    check: () => solver.solvePuzzle({ timeOut: 1 }),
+    excepted: false,
+  },
+  {
+    caseDesc:
+      "Setting the eazy puzzle to the board as 2D array and trying to solve that under 5000 ms.",
+    first: () => solver.setBoard(puzzle2d),
+    check: () => solver.solvePuzzle({ timeOut: 5000 }),
+    excepted: puzzleSolution,
   },
 ];
 

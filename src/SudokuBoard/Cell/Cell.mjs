@@ -23,20 +23,15 @@ export default class Cell {
   #boxId;
   #accepted;
   #reference;
+  #possibilities;
+  #validValues;
+  #warnings;
+  #errors;
 
-  constructor({
-    x,
-    y,
-    bx,
-    by,
-    id,
-    boxId,
-    value,
-    accepted,
-    given,
-    issued,
-    reference,
-  }) {
+  constructor(
+    { x, y, bx, by, id, boxId, value, accepted, given, issued, reference },
+    { warnings, errors } = { warnings: false, errors: false }
+  ) {
     this.#x = x;
     this.#y = y;
     this.#bx = bx;
@@ -48,6 +43,13 @@ export default class Cell {
     this.#given = given || false;
     this.#issued = issued || false;
     this.#reference = reference || null;
+    this.#validValues = Array.from(
+      { length: accepted.max },
+      (_, i) => i + accepted.min
+    );
+    this.#possibilities = this.#validValues;
+    this.#warnings = warnings;
+    this.#errors = errors;
     return this;
   }
 
@@ -71,6 +73,15 @@ export default class Cell {
   }
   get value() {
     return this.#value;
+  }
+  get validValues() {
+    return this.#validValues;
+  }
+  get possibilities() {
+    return this.#possibilities;
+  }
+  setPossibilities(possibilities) {
+    this.#possibilities = possibilities;
   }
 
   /* gives all the properties of a cell for debuging purpose made */
@@ -109,20 +120,21 @@ export default class Cell {
         this.#value = newValue;
       } else {
         this.#value = this.#accepted.unfilled;
-        console.error(
-          `Valid cell value is between: ${this.#accepted.min} - ${
-            this.#accepted.max
-          }, value: ${
-            this.#accepted.unfilled
-          } is allowed for unfilled cells.\nYou tried to set value: ${newValue}, for cell(x=${
-            this.#x
-          }, y=${this.y}) but value set to: ${
-            this.#accepted.unfilled
-          }, because of this issue.`
-        );
+        this.#errors &&
+          console.error(
+            `Valid cell value is between: ${this.#accepted.min} - ${
+              this.#accepted.max
+            }, value: ${
+              this.#accepted.unfilled
+            } is allowed for unfilled cells.\nYou tried to set value: ${newValue}, for cell(x=${
+              this.#x
+            }, y=${this.y}) but value set to: ${
+              this.#accepted.unfilled
+            }, because of this issue.`
+          );
       }
     } else {
-      console.error("Set value must be a number!");
+      this.#errors && console.error("Set value must be a number!");
     }
   }
 
