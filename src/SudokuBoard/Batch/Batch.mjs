@@ -1,7 +1,6 @@
 "use strict";
-import Cell from "../Cell/Cell.mjs";
 
-/* Class of the Batches, the batches in this concept a bunch of cells, thy can be rows, columns or boxes of the board, this is not matters, because every batch has the same porperties and methods
+/* Class of the Batches, the batches in this concept a bunch of cells, thy can be rows, columns or boxes of the board, this is not matters, because every batch has the same properties and methods
 only one argument required to create a Batch, th ID of them.*/
 export default class Batch {
   #id;
@@ -19,7 +18,7 @@ export default class Batch {
     id,
     cellNumber,
     type,
-    { warnings, errors } = { warnings: false, errors: false }
+    {warnings, errors} = {warnings: false, errors: false},
   ) {
     this.#id = id;
     this.#cellNumber = cellNumber;
@@ -32,7 +31,7 @@ export default class Batch {
     return this.#id;
   }
 
-  /* adds a cell into the batch if there is no cell in the batch according to the first cell's acepted property is the valid values array and unfilled value added to the batch
+  /* adds a cell into the batch if there is no cell in the batch according to the first cell's accepted property is the valid values array and unfilled value added to the batch
   arg:    Cell (Object)
   return: void (undefined) */
   addCell(cell) {
@@ -54,7 +53,7 @@ export default class Batch {
       allowed = false;
       this.#errors &&
         console.error(
-          "The current cell that would be added has not the same value acceptance as the cells that are already in the batch."
+          "The current cell that would be added has not the same value acceptance as the cells that are already in the batch.",
         );
     }
     if (this.#cells.length >= this.#cellNumber) {
@@ -63,14 +62,14 @@ export default class Batch {
         console.error(
           `There is more cells (${this.#cells.length}) in this batch (${
             this.#type
-          }) then allowed (${this.#cellNumber}).`
+          }) then allowed (${this.#cellNumber}).`,
         );
     }
     if (this.#cells.map((addedCell) => addedCell.id).includes(cell.id)) {
       allowed = false;
       this.#errors &&
         console.error(
-          `There is a cell in this batch already with this id: (${cell.id}). It is not allowed!`
+          `There is a cell in this batch already with this id: (${cell.id}). It is not allowed!`,
         );
     }
     if (
@@ -81,7 +80,7 @@ export default class Batch {
       allowed = false;
       this.#errors &&
         console.error(
-          `There is a cell in this batch with the same coordinates: (x=${cell.x}, y=${cell.y}). It is not allowed!`
+          `There is a cell in this batch with the same coordinates: (x=${cell.x}, y=${cell.y}). It is not allowed!`,
         );
     }
     if (allowed) {
@@ -91,7 +90,7 @@ export default class Batch {
 
   /* gives all the values of cell they ar in the batch
   arg:   null,
-  return arraf of integers, that contains the values of the cells in order the cells are added */
+  return array of integers, that contains the values of the cells in order the cells are added */
   getCellValues() {
     return this.#cells.map((cell) => cell.value);
   }
@@ -101,20 +100,20 @@ export default class Batch {
   return: array of integers that are the possible values what missing from the Batch  */
   getMissingNumbers() {
     return this.#validValues.filter(
-      (value) => !this.getCellValues().includes(value)
+      (value) => !this.getCellValues().includes(value),
     );
   }
 
   /* gives already written of the batch
   arg:    rowNr (Integer)
-  return: array of integers that are alerady in the Batch written */
+  return: array of integers that are already in the Batch written */
   getFilledNumbers() {
     return this.#validValues.filter((value) =>
-      this.getCellValues().includes(value)
+      this.getCellValues().includes(value),
     );
   }
 
-  /* checks that the batch has alread a duplicates */
+  /* checks that the batch has already a duplicates */
   hasDuplicates() {
     return this.getDuplicateValues().length > 0;
   }
@@ -124,7 +123,7 @@ export default class Batch {
   return: array of cells (object) with the same values */
   getDuplicateValuedCells() {
     return this.#cells.filter((cell) =>
-      this.getDuplicateValues().includes(cell.value)
+      this.getDuplicateValues().includes(cell.value),
     );
   }
 
@@ -133,11 +132,11 @@ export default class Batch {
   return: array of (integers)  */
   getDuplicateValues() {
     return Array.from(
-      { length: this.#maxValue - this.#minValue + 1 },
-      (_, i) => i + 1
+      {length: this.#maxValue - this.#minValue + 1},
+      (_, i) => i + 1,
     ).filter(
       (validNum) =>
-        this.#cells.filter((cell) => cell.value === validNum).length > 1
+        this.#cells.filter((cell) => cell.value === validNum).length > 1,
     );
   }
 
