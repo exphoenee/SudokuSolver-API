@@ -45,8 +45,8 @@ export default class SudokuBoard {
 
     if (this.#boardFormat(puzzle)[0] !== "err") {
       if (this.#boardFormat(puzzle)[0] === "1D") {
-        this.setBoard(puzzle, true);
       }
+      this.setBoard(puzzle, true);
     }
 
     return this;
@@ -321,11 +321,11 @@ export default class SudokuBoard {
   #setCellIssue({x, y, cell, id}) {
     const selectedCell = this.getCell({x, y, cell, id});
     this.getBatchesOfCell({x, y, selectedCell}).forEach((batch) => {
-      batch.cells.forEach((babthCell) => babthCell.unsetIssued());
+      batch.cells.forEach((batchCell) => batchCell.unsetIssued());
       batch.getDuplicateValuedCells().forEach((issuedCell) => {
         this.#warnings &&
           console.warn(
-            `This modification of cell with id: ${selectedCell.id} on coords x: ${selectedCell.x} y: ${selectedCell.y} in box id: ${selectedCell.boxId} to value: ${selectedCell.value} made the puzzle incorrect! Becuase the cell is a duplicate!`,
+            `This modification of cell with id: ${selectedCell.id} on coords x: ${selectedCell.x} y: ${selectedCell.y} in box id: ${selectedCell.boxId} to value: ${selectedCell.value} made the puzzle incorrect! Because the cell is a duplicate!`,
           );
         issuedCell.setIssued();
       });
