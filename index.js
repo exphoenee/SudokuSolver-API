@@ -16,6 +16,7 @@ app.get("/", function (req, res) {
         "Normal usage of the solver endpoint of the API is send a string with get request, with the stringified puzzle, the values separated with coma e.g.: apipath/solve/2,.,.,.,.,.,.,.,.,.,.,.,.,.,6,2,.,.,.,.,1,.,.,.,.,7,.,.,.,6,.,.,8,.,.,.,3,.,.,.,9,.,.,.,7,.,.,.,6,.,.,4,.,.,.,4,.,.,.,.,8,.,.,.,.,5,2,.,.,.,.,.,.,.,.,.,.,.,.,.,3",
       generator:
         "Normal usage of the generator endpoint of the API is send a string with get request, with the level [easy, medium, hard, evil] parameter e.g.: apipath/generate/easy",
+      version: "1.0.5",
     },
   });
 });
@@ -33,7 +34,7 @@ app.get("/generate", function (req, res) {
 });
 
 app.get("/solve/:puzzle", function (req, res) {
-  const { puzzle } = {
+  const {puzzle} = {
     puzzle: req.params.puzzle,
   };
   const xdim = 9;
@@ -46,13 +47,21 @@ app.get("/solve/:puzzle", function (req, res) {
     format: "string",
     unfilledChar: ".",
   });
+
   console.log(
-    "Requested puzzle: " + puzzle,
-    "x: " + xdim,
-    "y: " + ydim,
-    "Solution: " + solution
+    "\n==================================================\n",
+    "Requested puzzle:",
+    "\n===============\n",
+    puzzle,
+    "\n" + "x: " + xdim,
+    "y: " + ydim + "\n",
+    "Solution:",
+    "\n==========\n",
+    solution,
+    "\n==================================================\n",
   );
-  res.json({ solution });
+
+  res.json({solution});
 });
 
 app.get("/generate/:level", function (req, res) {
