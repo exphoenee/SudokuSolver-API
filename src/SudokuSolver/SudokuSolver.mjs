@@ -2,7 +2,7 @@
 import SudokuBoard from "../SudokuBoard/SudokuBoard.mjs";
 
 export default class SudokuSolver {
-  #sudokuboard;
+  #sudokuBoard;
   #boxSizeX;
   #boxSizeY;
   #startTime;
@@ -12,38 +12,38 @@ export default class SudokuSolver {
   #errors;
 
   constructor(
-    sudokuboard,
-    { warnings, errors } = { warnings: false, errors: false }
+    sudokuBoard,
+    {warnings, errors} = {warnings: false, errors: false},
   ) {
-    //the size of a section and matrix of sections n x n, but the css isn't made for other sizes only 3 x 3 sudokus...
-    this.#boxSizeX = sudokuboard.boardSize.boxSizeX;
-    this.#boxSizeY = sudokuboard.boardSize.boxSizeY;
-    this.#puzzle = sudokuboard.getCellValues({ format: "2D" });
+    //the size of a section and matrix of sections n x n, but the css isn't made for other sizes only 3 x 3 sudoku's...
+    this.#boxSizeX = sudokuBoard.boardSize.boxSizeX;
+    this.#boxSizeY = sudokuBoard.boardSize.boxSizeY;
+    this.#puzzle = sudokuBoard.getCellValues({format: "2D"});
     this.#startTime = false;
     this.#timeOut = false;
     this.#warnings = warnings;
     this.#errors = errors;
 
-    //using the SudokuBoard calss for handling the sudoku board
-    this.#sudokuboard = sudokuboard;
+    //using the SudokuBoard class for handling the sudoku board
+    this.#sudokuBoard = sudokuBoard;
   }
 
   /* gives back info form all the cells in the board
   arg:    null,
   return: array of object literals */
-  get sudokuboard() {
-    return this.#sudokuboard;
+  get sudokuBoard() {
+    return this.#sudokuBoard;
   }
 
   /* gives back info form all the cells in the board
   arg:    null,
   return: array of object literals */
   setBoard(puzzle) {
-    this.#sudokuboard.setBoard(puzzle);
+    this.#sudokuBoard.setBoard(puzzle);
   }
 
   clearBoard() {
-    this.#sudokuboard.clearBoard();
+    this.#sudokuBoard.clearBoard();
   }
 
   /**********************************/
@@ -61,43 +61,43 @@ export default class SudokuSolver {
         ** warnings: if true, the solver will print warnings to the console, here we can temporary the global this.#warnings overriding
     returns:
       * the solved puzzle n x n sized 2D array
-      * or a boolen which value can be only false what mean there is no solution for this puzzle */
+      * or a boolean which value can be only false what mean there is no solution for this puzzle */
   solvePuzzle(
-    { puzzle, format, unfilledChar, timeOut, warnings } = {
+    {puzzle, format, unfilledChar, timeOut, warnings} = {
       puzzle: null,
       format: "2D",
       unfilledChar: ".",
       timeOut: false,
       warnings: false,
-    }
+    },
   ) {
     if (puzzle) {
-      this.#sudokuboard.setBoard(puzzle);
+      this.#sudokuBoard.setBoard(puzzle);
     }
 
     this.#timeOut = timeOut;
     this.#timeOut && (this.#startTime = performance.now());
 
-    if (this.#sudokuboard.puzzleIsCorrect()) {
-      const result = this.#solve({ warnings });
+    if (this.#sudokuBoard.puzzleIsCorrect()) {
+      const result = this.#solve({warnings});
 
       return result ? this.convertPuzzle(result, format, unfilledChar) : false;
     }
   }
 
-  /* this method is the entry for making solution possiblities and filtrind out the not valid solution
+  /* this method is the entry for making solution possibilities and filtering out the not valid solution
     arg:
       * object literal:
         **  warning: if true, the solver will print warnings to the console, here we can temporary the global this.#warnings overriding
-    return: boolean that means the puzzle is solved (ture) or not (false) */
-  #solve({ warnings }) {
+    return: boolean that means the puzzle is solved (true) or not (false) */
+  #solve({warnings}) {
     if (this.#timeOut && performance.now() - this.#startTime > this.#timeOut) {
       (this.warnings || warnings) && console.warn("Solver timed out!");
       return false;
     }
-    return !this.#sudokuboard.coordsOfFirstFreeCell()
-      ? this.#sudokuboard.getCellValues({ format: "2D" })
-      : this.#checkPossiblities(this.#getPosiblities());
+    return !this.#sudokuBoard.coordsOfFirstFreeCell()
+      ? this.#sudokuBoard.getCellValues({format: "2D"})
+      : this.#checkPossibilities(this.#getPossibilities());
   }
 
   /* Cerates a temporary board and sets the cell value to the given value
@@ -115,23 +115,23 @@ export default class SudokuSolver {
     });
   }
 
-  /* generating new temporary boards with the content of the poriginal board, finding the less possiblitiy cell and setting the cell value to the next possiblity
+  /* generating new temporary boards with the content of the original board, finding the less possibility cell and setting the cell value to the next possibility
     arg:    null,
     return: returns an array of SudokuBoards (Object) whit a number that is written already in a unfilled cell or a Boolean with value false if there are no more possibility */
-  #getPosiblities() {
-    const nextCell = this.#sudokuboard.getFreeCellWithLessPosiblity();
-    //const nextCell = this.#sudokuboard.getFirstFreeCell();
+  #getPossibilities() {
+    const nextCell = this.#sudokuBoard.getFreeCellWithLessPossibility();
+    //const nextCell = this.#sudokuBoard.getFirstFreeCell();
 
     if (nextCell) {
-      const posNums = this.#sudokuboard.getCellPossibilities(nextCell);
-      return posNums
+      const posNumbers = this.#sudokuBoard.getCellPossibilities(nextCell);
+      return posNumbers
         .map((nr) => {
           const temporaryBoard = new SudokuBoard(
             this.#boxSizeX,
-            this.#boxSizeY
+            this.#boxSizeY,
           );
-          temporaryBoard.setBoard(this.#sudokuboard.getCellValues());
-          temporaryBoard.setCellValue({ x: nextCell.x, y: nextCell.y }, nr);
+          temporaryBoard.setBoard(this.#sudokuBoard.getCellValues());
+          temporaryBoard.setCellValue({x: nextCell.x, y: nextCell.y}, nr);
           return temporaryBoard;
         })
         .filter((puzzle) => puzzle.puzzleIsCorrect());
@@ -140,18 +140,18 @@ export default class SudokuSolver {
   }
 
   /* check the possibilities if there is any:
-      * takes the first, and check that good is (recourevely),
-      * if not generates new possibilities and returns that (recourevely),
-      * returns a puzzle of a flase is there is not any solution
+      * takes the first, and check that good is (recursively),
+      * if not generates new possibilities and returns that (recursively),
+      * returns a puzzle of a false is there is not any solution
       arg: m pieces of SudokuBorad class therefrom filtered out the incorrect versions
       return: boolean only false value if there is no solution, or
               a SudokuBoard (Class) as result */
-  #checkPossiblities(possiblities) {
-    if (Array.isArray(possiblities) && possiblities.length > 0) {
-      let possiblity = possiblities.shift();
-      this.#sudokuboard.setBoard(possiblity.getCellValues({ format: "2D" }));
-      const treeBranch = this.#solve(possiblity);
-      return treeBranch ? treeBranch : this.#checkPossiblities(possiblities);
+  #checkPossibilities(possibilities) {
+    if (Array.isArray(possibilities) && possibilities.length > 0) {
+      let possibility = possibilities.shift();
+      this.#sudokuBoard.setBoard(possibility.getCellValues({format: "2D"}));
+      const treeBranch = this.#solve(possibility);
+      return treeBranch ? treeBranch : this.#checkPossibilities(possibilities);
     } else {
       return false;
     }

@@ -5,7 +5,7 @@ import Batch from "./Batch/Batch.mjs";
 /* this the class of the sudoku board
   the constructor only gets 2 argument, the x and y size of a box in the board
   therefrom is calculated everything
-  this class is only responsible for tha handling, oranazing, setting and getting the status of the cells contained the board.*/
+  this class is only responsible for tha handling, organizing, setting and getting the status of the cells contained the board.*/
 export default class SudokuBoard {
   #boxSizeX;
   #boxSizeY;
@@ -25,7 +25,7 @@ export default class SudokuBoard {
     boxSizeX,
     boxSizeY,
     puzzle = null,
-    { warnings, errors } = { warnings: false, errors: false }
+    {warnings, errors} = {warnings: false, errors: false},
   ) {
     this.#boxSizeX = boxSizeX;
     this.#boxSizeY = boxSizeY;
@@ -45,6 +45,7 @@ export default class SudokuBoard {
 
     if (this.#boardFormat(puzzle)[0] !== "err") {
       if (this.#boardFormat(puzzle)[0] === "1D") {
+        console.log("1D");
       }
       this.setBoard(puzzle, true);
     }
@@ -53,7 +54,7 @@ export default class SudokuBoard {
   }
 
   /* This method organizing the cells into rows, columns, and boxes.
-  In this calss everything goes by references. */
+  In this class everything goes by references. */
   #generateBoard() {
     this.#createCells();
     this.#createRows();
@@ -71,11 +72,11 @@ export default class SudokuBoard {
     };
   }
 
-  /* Generating all the cells what the board contains. Here is passing down to the cells every information which is beolngs to the cell:
+  /* Generating all the cells what the board contains. Here is passing down to the cells every information which is belongs to the cell:
    * x and y coordinate,
    * id of the cell,
    * boxId this is the id of the box, where the cell will placed
-   * bx and by coordinate inside the box, maybe that is not neccessary,
+   * bx and by coordinate inside the box, maybe that is not necessary,
    * accepted, what kind of values are accepted:
    ** min is the minimum value
    ** max is the maximum value
@@ -112,7 +113,7 @@ export default class SudokuBoard {
         console.error(
           `Something went wrong, only number of ${
             this.#cellNumber
-          } cells allowed you tried to create the +1.`
+          } cells allowed you tried to create the +1.`,
         );
     }
   }
@@ -157,7 +158,7 @@ export default class SudokuBoard {
     this.#cols = this.#filterSameBatchID(
       this.#dimensionX,
       this.#dimensionY,
-      "x"
+      "x",
     );
   }
 
@@ -166,7 +167,7 @@ export default class SudokuBoard {
     this.#rows = this.#filterSameBatchID(
       this.#dimensionY,
       this.#dimensionX,
-      "y"
+      "y",
     );
   }
 
@@ -175,7 +176,7 @@ export default class SudokuBoard {
     this.#boxes = this.#filterSameBatchID(
       this.#boxSize,
       this.#boxSize,
-      "boxId"
+      "boxId",
     );
   }
 
@@ -266,8 +267,8 @@ export default class SudokuBoard {
   /* gives the batches where the cell is in
   arg:    cell (Object) or coordinates x and y (Integer, Integer)
   return: array of Batch (Objects) in order column, row, box */
-  getBatchesOfCell({ x, y, cell, id }) {
-    const selectedCell = this.getCell({ x, y, cell, id });
+  getBatchesOfCell({x, y, cell, id}) {
+    const selectedCell = this.getCell({x, y, cell, id});
     return [
       this.getCol(selectedCell.x),
       this.getRow(selectedCell.y),
@@ -275,19 +276,19 @@ export default class SudokuBoard {
     ];
   }
 
-  /* this method gives the numbers what can we write into a cell, the cell couldn't has a value what is represented in the column, the row and the box thath the cell is contained,
-    the method is capable for get result according to x and y coordinates, or easely giving a Cell (Object) to its argument
+  /* this method gives the numbers what can we write into a cell, the cell couldn't has a value what is represented in the column, the row and the box that the cell is contained,
+    the method is capable for get result according to x and y coordinates, or easily giving a Cell (Object) to its argument
       arg:      Object literal with following keys:
                   * x (integer),
                   * y (integer),
                   * cell (integer),
       return:   array of integer what is missing form the row, column, and box of the cell */
-  getCellPossibilities({ x, y, cell, id }) {
-    const selectedCell = this.getCell({ x, y, cell, id });
+  getCellPossibilities({x, y, cell, id}) {
+    const selectedCell = this.getCell({x, y, cell, id});
 
     const [missingFromCol, missingFromRow, missingFromBox] =
-      this.getBatchesOfCell({ cell: selectedCell }).map((batch) =>
-        batch.getMissingNumbers()
+      this.getBatchesOfCell({cell: selectedCell}).map((batch) =>
+        batch.getMissingNumbers(),
       );
 
     const intersection = (arr1, arr2) =>
@@ -295,7 +296,7 @@ export default class SudokuBoard {
 
     return intersection(
       intersection(missingFromCol, missingFromRow),
-      missingFromBox
+      missingFromBox,
     );
   }
 
@@ -308,24 +309,24 @@ export default class SudokuBoard {
 
   /* checking that the cell has duplicates its row, column or section arg:    x, y (integers) the coordinates of the cell
     return: true or false that means there are a duplicates for this cell */
-  haselectedCellDuplicates({ x, y, cell, id }) {
-    const selectedCell = this.getCell({ x, y, cell, id });
-    return this.getBatchesOfCell({ selectedCell })
+  hasSelectedCellDuplicates({x, y, cell, id}) {
+    const selectedCell = this.getCell({x, y, cell, id});
+    return this.getBatchesOfCell({selectedCell})
       .map((batch) => batch.hasDuplicates())
-      .every((dups) => dups === true);
+      .every((duplicates) => duplicates === true);
   }
 
   /* checking the given cell has duplicates its row, column or section and sets the cell with the duplicates to issued
     arg:    Cell (object) x, y (integers) the coordinates of the cell
     return: undefined */
-  #setCellIssue({ x, y, cell, id }) {
-    const selectedCell = this.getCell({ x, y, cell, id });
-    this.getBatchesOfCell({ x, y, selectedCell }).forEach((batch) => {
-      batch.cells.forEach((babthCell) => babthCell.unsetIssued());
+  #setCellIssue({x, y, cell, id}) {
+    const selectedCell = this.getCell({x, y, cell, id});
+    this.getBatchesOfCell({x, y, selectedCell}).forEach((batch) => {
+      batch.cells.forEach((batchCell) => batchCell.unsetIssued());
       batch.getDuplicateValuedCells().forEach((issuedCell) => {
         this.#warnings &&
           console.warn(
-            `This modification of cell with id: ${selectedCell.id} on coords x: ${selectedCell.x} y: ${selectedCell.y} in box id: ${selectedCell.boxId} to value: ${selectedCell.value} made the puzzle incorrect! Becuase the cell is a duplicate!`
+            `This modification of cell with id: ${selectedCell.id} on coords x: ${selectedCell.x} y: ${selectedCell.y} in box id: ${selectedCell.boxId} to value: ${selectedCell.value} made the puzzle incorrect! Because the cell is a duplicate!`,
           );
         issuedCell.setIssued();
       });
@@ -340,16 +341,16 @@ export default class SudokuBoard {
       ...new Set(
         [...this.#rows, ...this.#cols, ...this.#boxes]
           .map((batch) => batch.getDuplicateValuedCells())
-          .flat()
+          .flat(),
       ),
     ];
   }
 
-  /* the method sets the possiblities all the a cells that are in the same batches with the given cell
+  /* the method sets the possibilities all the a cells that are in the same batches with the given cell
   arg:    Cell (object) or coordinates x, y (integer, integer)
   return: undefined */
-  #setCellPosiblities({ cell, x, y, id }) {
-    const selectedCell = this.getCell({ x, y, cell, id });
+  #setCellPossibilities({cell, x, y, id}) {
+    const selectedCell = this.getCell({x, y, cell, id});
 
     this.getBatchesOfCell({
       x,
@@ -363,16 +364,16 @@ export default class SudokuBoard {
         } else {
           this.#warnings &&
             console.warn(
-              `This modification of cell with id: ${selectedCell.id} on coords x: ${selectedCell.x} y: ${selectedCell.y} in box id: ${selectedCell.boxId} to value: ${selectedCell.value} made the puzzle incorrect! Becuase the cell has no possibilities!`
+              `This modification of cell with id: ${selectedCell.id} on coords x: ${selectedCell.x} y: ${selectedCell.y} in box id: ${selectedCell.boxId} to value: ${selectedCell.value} made the puzzle incorrect! Because the cell has no possibilities!`,
             );
         }
-      })
+      }),
     );
   }
 
   /* the method is checking the puzzle does or not any duplicates in the rows, columns or boxes
   arg:    null,
-  return: boolen the puzzle is correct true, that means there aren't any duplicates */
+  return: boolean the puzzle is correct true, that means there aren't any duplicates */
   puzzleIsCorrect() {
     for (let batch of [...this.#rows, ...this.#cols, ...this.#boxes])
       if (batch.hasDuplicates()) return false;
@@ -397,33 +398,33 @@ export default class SudokuBoard {
     return this.cells.filter((cell) => cell.value === value);
   }
 
-  /* Gives sets the cell possiblities that we can write in the cell
+  /* Gives sets the cell possibilities that we can write in the cell
   arg:    null,
   return:  */
   updatePossibilityMap() {
     this.cells.forEach((cell) =>
-      cell.setPossibilities(this.getCellPossibilities(cell))
+      cell.setPossibilities(this.getCellPossibilities(cell)),
     );
   }
 
-  /* Gives back the an array that contains the cell possiblities that we can write in the cell
+  /* Gives back the an array that contains the cell possibilities that we can write in the cell
   arg:    null,
   return: array of arrays of integers tha numbers that*/
   getPossibilityMap() {
     return this.cells.map((cell) => this.getCellPossibilities(cell));
   }
 
-  /* the method gives back a free cell with the less possiblity
+  /* the method gives back a free cell with the less possibility
   arg:    null
   return a Cell (object) */
-  getFreeCellWithLessPosiblity() {
+  getFreeCellWithLessPossibility() {
     const freeCell = this.#cells
       .filter((cell) => cell.value == 0)
       .map((cell) => {
-        const possiblities = this.getCellPossibilities(cell);
-        return { cell, possiblities };
+        const possibilities = this.getCellPossibilities(cell);
+        return {cell, possibilities};
       })
-      .sort((a, b) => a.possiblities.length - b.possiblities.length)[0].cell;
+      .sort((a, b) => a.possibilities.length - b.possibilities.length)[0].cell;
 
     if (freeCell && this.getCellPossibilities(freeCell).length > 0)
       return freeCell;
@@ -432,11 +433,11 @@ export default class SudokuBoard {
 
   /* gives the coords of the first free cell
     arg:    null
-    return: Object {x, y} the two coorinate of the cell */
+    return: Object {x, y} the two coordinate of the cell */
   coordsOfFirstFreeCell() {
     const freeCell = this.getFirstFreeCell();
-    if (freeCell) return { x: freeCell.x, y: freeCell.y };
-    return false;
+    if (!freeCell) return false;
+    return {x: freeCell.x, y: freeCell.y};
   }
 
   /* Validating the coordinate, the coord must be in range between 0 and dimension.
@@ -457,19 +458,19 @@ export default class SudokuBoard {
             this.#dimensionX
           }, the y must be between 1...${
             this.#dimensionY
-          }. You asked x: ${x} and y: ${y}.`
+          }. You asked x: ${x} and y: ${y}.`,
         );
     }
   }
 
   /* the method check the incoming format of the board what will be set
   arg:    board it acn be 2D array, 1D array or a string
-  return: array, where the frist element is the type of the incoming argument, the second is the message in case of error */
+  return: array, where the first element is the type of the incoming argument, the second is the message in case of error */
   #boardFormat(board) {
     return Array.isArray(board)
       ? board.length === this.#dimensionY
         ? board.every(
-            (row) => row.length === this.#dimensionX && Array.isArray(row)
+            (row) => row.length === this.#dimensionX && Array.isArray(row),
           )
           ? ["2D"]
           : [
@@ -498,6 +499,26 @@ export default class SudokuBoard {
       : ["err", `The board format is invalid!`];
   }
 
+  convertBoard = (board, format) => {
+    const convert1Dto2D = (board) => {
+      const mBoard = [...board];
+      const board2D = [];
+      while (mBoard.length) board2D.push(mBoard.splice(0, this.#dimensionX));
+      return board2D;
+    };
+
+    const ConvertStrTo1D = (board) => {
+      return convert1Dto2D(board.split(",").map((cell) => +cell));
+    };
+
+    let convertedBoard;
+    format === "2D" && (convertedBoard = board);
+    format === "1D" && (convertedBoard = convert1Dto2D(board));
+    format === "string" && (convertedBoard = ConvertStrTo1D(board));
+
+    return convertedBoard;
+  };
+
   /* setBoard method sets all the cells of the table according to the given arguments.
   arg:
       * board can be 1D array, 2D array or a string.
@@ -506,32 +527,18 @@ export default class SudokuBoard {
   setBoard(board, setGiven = false) {
     const [format, msg] = this.#boardFormat(board);
 
-    const conver1Dto2D = (board) => {
-      const mBoard = [...board];
-      const board2D = [];
-      while (mBoard.length) board2D.push(mBoard.splice(0, this.#dimensionX));
-      return board2D;
-    };
-
-    const ConvertStrTo1D = (board) => {
-      return conver1Dto2D(board.split(",").map((cell) => +cell));
-    };
-
-    let convertedBoard;
-    format === "2D" && (convertedBoard = board);
-    format === "1D" && (convertedBoard = conver1Dto2D(board));
-    format === "string" && (convertedBoard = ConvertStrTo1D(board));
+    const convertedBoard = this.convertBoard(board, format);
 
     if (convertedBoard) {
       convertedBoard.forEach((row, y) =>
         row.forEach((cellValue, x) => {
-          const selectedCell = this.getCell({ x, y });
+          const selectedCell = this.getCell({x, y});
           selectedCell.setValue(cellValue);
           if (setGiven)
             selectedCell.isFilled()
               ? selectedCell.setGiven()
               : selectedCell.unsetGiven();
-        })
+        }),
       );
       this.#setAllIssuedCells();
     } else {
@@ -559,10 +566,8 @@ export default class SudokuBoard {
           ** type: (string) can be 1D, 2D, or string, the format of the result
               1D is 1D array, 2D is 2D array, string is string
           ** unfilledChard
-  return: 1D, 2D array of integers, or string according to format argument, containig the values of the cells in order they are created */
-  getCellValues(
-    { format, unfilledChar } = { format: "2D", unfilledChar: "0" }
-  ) {
+  return: 1D, 2D array of integers, or string according to format argument, containing the values of the cells in order they are created */
+  getCellValues({format, unfilledChar} = {format: "2D", unfilledChar: "0"}) {
     let res = this.#cells.map((cell) => cell.value);
 
     if (format.toUpperCase() === "STRING") {
@@ -579,25 +584,25 @@ export default class SudokuBoard {
   /* gives back a cell according to given coords or cell, or id
     arg:
         * object literal:
-          ** x, y (integer, integer) coordinates both is requierd,
-          ** cell easyly passing through,
+          ** x, y (integer, integer) coordinates both is required,
+          ** cell easily passing through,
           ** id (integer) id of the cell
     return:
         * Cell (object) */
-  getCell({ x, y, cell, id }) {
+  getCell({x, y, cell, id}) {
     let selectedCell;
     if (cell instanceof Cell) {
       selectedCell = cell;
     } else if (x !== undefined && y !== undefined) {
       selectedCell = this.#cells.find(
-        (cell) => this.validateCoord(x, y) && cell.x === x && cell.y === y
+        (cell) => this.validateCoord(x, y) && cell.x === x && cell.y === y,
       );
     } else if (id !== undefined) {
       selectedCell = this.#cells.find((cell) => cell.id === id);
     } else {
       this.#errors &&
         console.error(
-          `The cell arguments must be x (${x}), y (${y}), or a Cell (${cell}) object, or an id (${id})! There is no such cell that meets the requirements.`
+          `The cell arguments must be x (${x}), y (${y}), or a Cell (${cell}) object, or an id (${id})! There is no such cell that meets the requirements.`,
         );
     }
     return selectedCell;
@@ -609,13 +614,13 @@ export default class SudokuBoard {
         **  Cell (object) or x (integer) and y (integer) coordinates or id
       *  value (integer)
   return: void (undefined) */
-  setCellValue({ x, y, cell, id }, value) {
-    const selectedCell = this.getCell({ x, y, cell, id });
+  setCellValue({x, y, cell, id}, value) {
+    const selectedCell = this.getCell({x, y, cell, id});
     if (selectedCell) {
       selectedCell.setValue(value);
 
       this.#setCellIssue(selectedCell);
-      this.#setCellPosiblities(selectedCell);
+      this.#setCellPossibilities(selectedCell);
     }
   }
 

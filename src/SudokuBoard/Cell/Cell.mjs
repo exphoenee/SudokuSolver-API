@@ -4,7 +4,7 @@
  * x and y coordinate,
  * id of the cell,
  * boxId this is the id of the box, where the cell will placed
- * bx and by coordinate inside the box, maybe that is not neccessary,
+ * bx and by coordinate inside the box, maybe that is not necessary,
  * accepted, what kind of values are accepted:
  ** min is the minimum value
  ** max is the maximum value
@@ -84,7 +84,7 @@ export default class Cell {
     this.#possibilities = possibilities;
   }
 
-  /* gives all the properties of a cell for debuging purpose made */
+  /* gives all the properties of a cell for debugging purpose made */
   get info() {
     return {
       id: this.#id,
@@ -95,7 +95,6 @@ export default class Cell {
       y: this.#y,
       bx: this.#bx,
       by: this.#by,
-      id: this.#id,
       boxId: this.#boxId,
       accepted: this.#accepted,
     };
@@ -113,7 +112,7 @@ export default class Cell {
 
   /* sets and checks the value of a cell if the values is wrong, sets to unfilled
   arg:    newValue (integer)
-  retrun: void (undefined) */
+  return: void (undefined) */
   setValue(newValue) {
     if (typeof newValue == "number") {
       if (this.validateValue(newValue)) {
@@ -142,14 +141,14 @@ export default class Cell {
     return this.#given;
   }
 
-  /* sets a cell to given state, that means it coouldn't be changed by the user
+  /* sets a cell to given state, that means it couldn't be changed by the user
     arg:     null
     returns: undefined */
   setGiven() {
     this.#given = true;
   }
 
-  /* sets a cell to given state, that means it coouldn't be changed by the user
+  /* sets a cell to given state, that means it couldn't be changed by the user
     arg:     null
     returns: undefined */
   unsetGiven() {
@@ -173,7 +172,7 @@ export default class Cell {
 
   /* gives the values what can the cell accept
   arg:    null
-  retrun: Object {min, max, unfilled}
+  return: Object {min, max, unfilled}
     ** min is the minimum value
     ** max is the maximum value
     ** unfilled value is that value what means the cell is unfilled */

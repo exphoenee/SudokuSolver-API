@@ -17,7 +17,7 @@ const cell = new Cell({
   ref: null,
 });
 
-//{ first, check, excepted }
+//the data format is the followings: { first, check, excepted }
 const cases = [
   {
     caseDesc: "Getting the x coord of the cell.",
@@ -98,7 +98,6 @@ const cases = [
       y: 1,
       bx: 2,
       by: 3,
-      id: 4,
       boxId: 5,
       accepted: { max: 9, min: 1, unfilled: 0 },
     },
@@ -225,7 +224,7 @@ const cases = [
     excepted: true,
   },
   {
-    caseDesc: "Set the cell value to 3, and chacing is the cell filled?",
+    caseDesc: "Set the cell value to 3, and checking is the cell filled?",
     first: () => cell.setValue(3),
     check: () => cell.isFilled(),
     excepted: true,
@@ -262,4 +261,4 @@ const cases = [
   },
 ];
 
-batchAssert(cases, { showFailed: true, showSuccessed: false });
+batchAssert(cases, {showFailed: true, showSucceeded: false});

@@ -1,4 +1,4 @@
-export const claerBoardSolution1 = [
+export const clearBoardSolution1 = [
   [1, 2, 3, 4, 5, 6, 7, 8, 9],
   [4, 5, 6, 7, 8, 9, 1, 2, 3],
   [7, 8, 9, 1, 2, 3, 4, 5, 6],
@@ -9,7 +9,7 @@ export const claerBoardSolution1 = [
   [6, 4, 2, 9, 7, 8, 5, 3, 1],
   [9, 7, 8, 5, 3, 1, 6, 4, 2],
 ];
-export const claerBoardSolution2 = [
+export const clearBoardSolution2 = [
   [1, 2, 3, 4, 5, 6, 7, 8, 9],
   [4, 5, 6, 7, 8, 9, 1, 2, 3],
   [7, 8, 9, 1, 2, 3, 4, 5, 6],

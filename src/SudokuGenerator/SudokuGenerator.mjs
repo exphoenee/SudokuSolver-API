@@ -4,7 +4,7 @@ import SudokuBoard from "../SudokuBoard/SudokuBoard.mjs";
 import SudokuSolver from "../SudokuSolver/SudokuSolver.mjs";
 
 export default class SudokuGenerator {
-  #sudokuboard;
+  #sudokuBoard;
   #boxSizeX;
   #boxSizeY;
   #solver;
@@ -13,25 +13,25 @@ export default class SudokuGenerator {
   #defaultLevels;
 
   constructor(
-    { sudokuboard, boxSizeX, boxSizeY },
-    { warnings, errors } = { warnings: false, errors: false }
+    {sudokuBoard, boxSizeX, boxSizeY},
+    {warnings, errors} = {warnings: false, errors: false},
   ) {
-    this.#boxSizeX = boxSizeX || sudokuboard.boardSize.boxSizeX;
-    this.#boxSizeY = boxSizeY || sudokuboard.boardSize.boxSizeY;
+    this.#boxSizeX = boxSizeX || sudokuBoard.boardSize.boxSizeX;
+    this.#boxSizeY = boxSizeY || sudokuBoard.boardSize.boxSizeY;
     this.#warnings = warnings;
     this.#errors = errors;
 
-    this.#defaultLevels = { easy: 35, medium: 45, hard: 65, evil: 75 };
+    this.#defaultLevels = {easy: 35, medium: 45, hard: 65, evil: 75};
 
-    this.#sudokuboard = new SudokuBoard(this.#boxSizeX, this.#boxSizeY);
-    this.#solver = new SudokuSolver(this.#sudokuboard);
+    this.#sudokuBoard = new SudokuBoard(this.#boxSizeX, this.#boxSizeY);
+    this.#solver = new SudokuSolver(this.#sudokuBoard);
   }
 
-  /* gives back the entire sudokuboard
+  /* gives back the entire sudoku board
   arg:    null
   return  SudokuBoard (Object) */
-  get sudokuboard() {
-    return this.#sudokuboard;
+  get sudokuBoard() {
+    return this.#sudokuBoard;
   }
 
   get levels() {
@@ -42,19 +42,19 @@ export default class SudokuGenerator {
   arg:    null,
   return: array of object literals */
   setBoard(puzzle) {
-    this.#sudokuboard.setBoard(puzzle);
+    this.#sudokuBoard.setBoard(puzzle);
   }
 
   clearBoard() {
-    this.#sudokuboard.clearBoard();
+    this.#sudokuBoard.clearBoard();
   }
 
   getFreeCells() {
-    return this.#sudokuboard.cells.filter((cell) => cell.isUnfilled());
+    return this.#sudokuBoard.cells.filter((cell) => cell.isUnfilled());
   }
 
-  getCellPossibilities({ cell }) {
-    return this.#sudokuboard.getCellPossibilities({ cell });
+  getCellPossibilities({cell}) {
+    return this.#sudokuBoard.getCellPossibilities({cell});
   }
 
   getRandomFreeCell() {
@@ -63,11 +63,11 @@ export default class SudokuGenerator {
   }
 
   setCellRandomValue(cell) {
-    const possibleities = this.getCellPossibilities({ cell });
+    const possibilities = this.getCellPossibilities({cell});
 
-    if (possibleities) {
+    if (possibilities) {
       const value =
-        possibleities[Math.floor(Math.random() * possibleities.length)];
+        possibilities[Math.floor(Math.random() * possibilities.length)];
       if (value) cell.setValue(+value);
     }
   }
@@ -77,17 +77,17 @@ export default class SudokuGenerator {
     this.setCellRandomValue(cell);
   }
 
-  generatePuzzle({ level } = { level: "easy" }) {
-    const nrOfCell = this.sudokuboard.cells.length;
-    const cellAmmount = {
+  generatePuzzle({level} = {level: "easy"}) {
+    const nrOfCell = this.sudokuBoard.cells.length;
+    const cellAmount = {
       ...this.#defaultLevels,
       default: () => (isNaN(+level) ? 75 : +level),
     };
 
     const nrOfSetFree = Math.floor(
       (isNaN(+level)
-        ? nrOfCell * cellAmmount[level.toLowerCase()]
-        : Math.max(+level * nrOfCell, 5)) / 100
+        ? nrOfCell * cellAmount[level.toLowerCase()]
+        : Math.max(+level * nrOfCell, 5)) / 100,
     );
 
     const trialGoal = Math.floor(nrOfCell * 0.24);
@@ -96,18 +96,18 @@ export default class SudokuGenerator {
 
     const startTime = performance.now();
     do {
-      this.#sudokuboard.clearBoard();
+      this.#sudokuBoard.clearBoard();
 
-      [...this.#sudokuboard.cells]
+      [...this.#sudokuBoard.cells]
         .sort(() => Math.random() - 0.5)
         .splice(0, trialGoal)
         .forEach((cell) => this.setCellRandomValue(cell));
 
       trialStep++;
-      solution = this.#solver.solvePuzzle({ format: "string", timeOut: 10000 });
+      solution = this.#solver.solvePuzzle({format: "string", timeOut: 10000});
     } while (solution === false);
 
-    [...this.#sudokuboard.cells]
+    [...this.#sudokuBoard.cells]
       .sort(() => Math.random() - 0.5)
       .splice(0, nrOfSetFree)
       .forEach((cell) => cell.setValue(0));
@@ -115,7 +115,7 @@ export default class SudokuGenerator {
     const endTime = performance.now();
     const generationTime = endTime - startTime;
 
-    const puzzle = this.sudokuboard.getCellValues({ format: "string" });
+    const puzzle = this.sudokuBoard.getCellValues({format: "string"});
 
     return {
       puzzle,
