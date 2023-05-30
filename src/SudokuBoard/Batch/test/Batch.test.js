@@ -46,7 +46,7 @@ const cell3 = new Cell({
 
 const batch = new Batch(4, 3);
 
-//{ caseDesc, first, check, excepted }
+// Test case format is: { caseDesc, first, check, excepted }
 const cases = [
   /* Testing without a cell */
   {
@@ -77,20 +77,20 @@ const cases = [
     excepted: [],
   },
   {
-    caseDesc: "Has the batch diplicates? The batch doesn't has any cell.",
+    caseDesc: "Has the batch duplicates? The batch doesn't has any cell.",
     first: null,
     check: () => batch.hasDuplicates(),
     excepted: false,
   },
   {
     caseDesc:
-      "Get the cells of batch with diplicated values, batch doesn't has any cell.",
+      "Get the cells of batch with duplicated values, batch doesn't has any cell.",
     first: null,
     check: () => batch.getDuplicateValuedCells(),
     excepted: [],
   },
   {
-    caseDesc: "Get the batch diplicated values, batch doesn't has any cell.",
+    caseDesc: "Get the batch duplicated values, batch doesn't has any cell.",
     first: null,
     check: () => batch.getDuplicateValues(),
     excepted: [],
@@ -115,7 +115,7 @@ const cases = [
   },
   {
     caseDesc:
-      "Get the cells of batch with diplicated values, batch doesn't has any cell only.",
+      "Get the cells of batch with duplicated values, batch doesn't has any cell only.",
     first: null,
     check: () => batch.getDuplicateValuedCells(),
     excepted: [],
@@ -129,7 +129,7 @@ const cases = [
   },
   {
     caseDesc:
-      "Clears the a issued porperty of all cell of the batch, batch doesn't has any cell.",
+      "Clears the a issued property of all cell of the batch, batch doesn't has any cell.",
     first: () => batch.clearIssued(),
     check: () => batch.getIssuedCells(),
     excepted: [],
@@ -180,20 +180,20 @@ const cases = [
     excepted: [4],
   },
   {
-    caseDesc: "Has the batch diplicates? The batch has one cell only.",
+    caseDesc: "Has the batch duplicates? The batch has one cell only.",
     first: null,
     check: () => batch.hasDuplicates(),
     excepted: false,
   },
   {
     caseDesc:
-      "Get the cells of batch with diplicated values, batch has one cell only.",
+      "Get the cells of batch with duplicated values, batch has one cell only.",
     first: null,
     check: () => batch.getDuplicateValuedCells(),
     excepted: [],
   },
   {
-    caseDesc: "Get the batch diplicated values, batch has one cell only.",
+    caseDesc: "Get the batch duplicated values, batch has one cell only.",
     first: null,
     check: () => batch.getDuplicateValues(),
     excepted: [],
@@ -224,7 +224,7 @@ const cases = [
   },
   {
     caseDesc:
-      "Clears the a issued porperty of all cell of the batch, batch has one cell only.",
+      "Clears the a issued property of all cell of the batch, batch has one cell only.",
     first: () => batch.clearIssued(),
     check: () => batch.getIssuedCells(),
     excepted: [],
@@ -259,21 +259,21 @@ const cases = [
     excepted: [3, 4],
   },
   {
-    caseDesc: "Has the batch diplicates? The batch has two cell.",
+    caseDesc: "Has the batch duplicates? The batch has two cell.",
     first: null,
     check: () => batch.hasDuplicates(),
     excepted: false,
   },
   {
     caseDesc:
-      "Set cell 1 same value as cell 2 has, and checks: has the batch diplicates? The batch has two cell.",
+      "Set cell 1 same value as cell 2 has, and checks: has the batch duplicates? The batch has two cell.",
     first: () => cell1.setValue(cell2.value),
     check: () => batch.hasDuplicates(),
     excepted: true,
   },
   {
     caseDesc:
-      "Get the cells of batch with diplicated values, batch has two cell.",
+      "Get the cells of batch with duplicated values, batch has two cell.",
     first: null,
     check: () => batch.getDuplicateValuedCells().map((cell) => cell.info),
     excepted: [
@@ -304,7 +304,7 @@ const cases = [
     ],
   },
   {
-    caseDesc: "Get the batch diplicated values, batch has two cell.",
+    caseDesc: "Get the batch duplicated values, batch has two cell.",
     first: null,
     check: () => batch.getDuplicateValues(),
     excepted: [3],
@@ -410,12 +410,12 @@ const cases = [
   },
   {
     caseDesc:
-      "Clears the a issued porperty of all cell of the batch, batch has two cell.",
+      "Clears the a issued property of all cell of the batch, batch has two cell.",
     first: () => batch.clearIssued(),
     check: () => batch.getIssuedCells(),
     excepted: [],
   },
-  /* triying to add a cell  */
+  /* trying to add a cell  */
   {
     caseDesc:
       "Adding a cell and getting the values of the batch, batch has one cell only.",
@@ -464,7 +464,7 @@ const cases = [
 
 batchAssert(cases, {
   showFailed: true,
-  showSuccessed: false,
+  showSucceeded: false,
   length: Infinity,
 });
 
@@ -489,6 +489,6 @@ const cases2 = [
 
 batchAssert(cases2, {
   showFailed: true,
-  showSuccessed: false,
+  showSucceeded: true,
   length: Infinity,
 });
