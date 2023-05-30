@@ -5,7 +5,7 @@ import SudokuGenerator from "../SudokuGenerator/SudokuGenerator.mjs";
 
 export default class SudokuRenderer {
   #solver;
-  #sudokuboard;
+  #sudokuBoard;
   #boxSizeX;
   #boxSizeY;
   #selectedCell;
@@ -20,11 +20,11 @@ export default class SudokuRenderer {
   #examples;
 
   constructor(boxSizeX, boxSizeY, puzzle = null) {
-    //using the SudokuBoard calss for handling the sudoku board
+    //using the SudokuBoard class for handling the sudoku board
 
-    this.#sudokuboard = new SudokuBoard(boxSizeX, boxSizeY, puzzle);
-    this.#solver = new SudokuSolver(this.#sudokuboard);
-    this.#generator = new SudokuGenerator({sudokuboard: this.#sudokuboard});
+    this.#sudokuBoard = new SudokuBoard(boxSizeX, boxSizeY, puzzle);
+    this.#solver = new SudokuSolver(this.#sudokuBoard);
+    this.#generator = new SudokuGenerator({sudokuBoard: this.#sudokuBoard});
 
     this.#boxSizeX = boxSizeX;
     this.#boxSizeY = boxSizeY;
@@ -142,8 +142,8 @@ export default class SudokuRenderer {
   /* getting all values from the UI inputs
     return: a 2D array what is given by the user */
   extractInputs() {
-    this.#sudokuboard.setBoard(
-      this.#sudokuboard.cells.map((cell) => +cell.ref.value),
+    this.#sudokuBoard.setBoard(
+      this.#sudokuBoard.cells.map((cell) => +cell.ref.value),
     );
   }
 
@@ -151,7 +151,7 @@ export default class SudokuRenderer {
   solve() {
     const solution = this.#solver.solvePuzzle();
     if (solution) {
-      this.#sudokuboard.setBoard(solution, false);
+      this.#sudokuBoard.setBoard(solution, false);
     } else {
       this.#userMsg("This puzzle does not has a solution!", "error");
     }
@@ -165,7 +165,7 @@ export default class SudokuRenderer {
     arg:    puzzle n x n sized 2D array
     return: a boolean true means the column doesn't has duplicates */
   updateUICells() {
-    this.#sudokuboard.cells.forEach(
+    this.#sudokuBoard.cells.forEach(
       (cell) => (cell.ref.value = +cell.value || ""),
     );
 
@@ -183,10 +183,10 @@ export default class SudokuRenderer {
       +e.target.dataset.row,
       +e.target.value,
     ];
-    const cell = this.#sudokuboard.getCell(x, y);
+    const cell = this.#sudokuBoard.getCell(x, y);
     const {min, max, unfilled} = cell.accepted;
     try {
-      this.#sudokuboard.setCellValue({x, y}, value || unfilled);
+      this.#sudokuBoard.setCellValue({x, y}, value || unfilled);
     } catch {
       this.#userMsgTemporary({
         text: `Wrong value! You gave ${value}, but it must be between ${min}...${max}!`,
@@ -200,7 +200,7 @@ export default class SudokuRenderer {
 
   /* all the issued cells gets the issued class and style */
   updateCells() {
-    this.#sudokuboard.cells.forEach((cell) => this.#setCellStyle(cell));
+    this.#sudokuBoard.cells.forEach((cell) => this.#setCellStyle(cell));
   }
 
   /* setting the HTML element classes end style of the cell HTML element
@@ -223,7 +223,7 @@ export default class SudokuRenderer {
   /* throw a message
    * first argument is the text,
    * the second object has one properties:
-   ** alert, gives allert as well, and
+   ** alert, gives alert as well, and
    ** the type of the print to console. */
   #userMsg(text, type = "none") {
     this.#errors.innerHTML = text;
@@ -239,7 +239,7 @@ export default class SudokuRenderer {
   /* throw a message
    * first argument is the text,
    * the second object has one properties:
-   ** alert, gives allert as well, and
+   ** alert, gives alert as well, and
    ** the type of the print to console. */
   #userMsgTemporary(
     {text, prevMsg, delay, type} = {
@@ -274,7 +274,7 @@ export default class SudokuRenderer {
     this.#generatorBoard = this.#createContainer("generator", this.app);
     this.#userMsg("Let's solve this puzzle!");
 
-    this.#sudokuboard.getAllRows().forEach((row) => this.#renderRow(row));
+    this.#sudokuBoard.getAllRows().forEach((row) => this.#renderRow(row));
 
     this.#renderExamples();
 
@@ -313,14 +313,14 @@ export default class SudokuRenderer {
       numButton.addEventListener("click", (e) => {
         if (this.#selectedCell) {
           this.#selectedCell.ref.value = num;
-          this.#sudokuboard.setCellValue({cell: this.#selectedCell}, num);
+          this.#sudokuBoard.setCellValue({cell: this.#selectedCell}, num);
           this.updateUICells();
         }
       });
     }
   }
 
-  /* rendering the rows, the only div and iterating throught the cells of each
+  /* rendering the rows, the only div and iterating through the cells of each
       arg:    Batch (object)
       return: undefined */
   #renderRow(row) {
@@ -368,7 +368,7 @@ export default class SudokuRenderer {
       cellDOM.style.marginBottom = `${this.#tileSizes.boxGap}px`;
     }
     cellDOM.addEventListener("click", (e) => {
-      this.#sudokuboard.cells.forEach((cell) => {
+      this.#sudokuBoard.cells.forEach((cell) => {
         cell.ref.classList.remove("selected");
       });
       cellDOM.classList.add("selected");
@@ -380,17 +380,17 @@ export default class SudokuRenderer {
   }
 
   #sudokuGeneratorBoard() {
-    Object.keys(this.#generator.levels).map((level) => {
+    Object.keys(this.#generator.levels).forEach((level) => {
       this.#renderButton(
         "Generate a random " + level + " level",
         () => {
           const {puzzle, generationTime} = this.#generator.generatePuzzle({
             level,
           });
-          this.#sudokuboard.setBoard(puzzle, true);
+          this.#sudokuBoard.setBoard(puzzle, true);
           this.updateUICells();
           this.#userMsgTemporary({
-            text: `Generated a ${level} level puzzle! That tooked only ${
+            text: `Generated a ${level} level puzzle! That taken only ${
               Math.round(generationTime / 100) / 10
             } seconds!`,
             delay: 2000,
@@ -406,7 +406,7 @@ export default class SudokuRenderer {
       this.#renderButton(
         puzzle + " example",
         () => {
-          this.#sudokuboard.setBoard(this.examples[puzzle], true);
+          this.#sudokuBoard.setBoard(this.examples[puzzle], true);
           this.updateUICells();
           this.#userMsgTemporary({
             text: `Puzzle changed to ${puzzle}!`,
@@ -418,7 +418,7 @@ export default class SudokuRenderer {
     }
   }
 
-  /* buttons for the contorl panel, the arguments are the following:
+  /* buttons for the control panel, the arguments are the following:
     text  -> text of the button
     cb -> the callback function what is fired when the button is clicked */
   #renderButton(text, cb, parent) {
