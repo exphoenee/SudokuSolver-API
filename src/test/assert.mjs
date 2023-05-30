@@ -11,12 +11,11 @@ export const assert = ({
   const tooLong = length || 250;
   let testResult;
 
-  let results;
   let printout = "";
   let stepText = "";
 
-  /* Creating test desctiption text */
-  caseDesc = caseDesc ? `TESTCASE: ${caseDesc}\n` : "";
+  /* Creating test description text */
+  caseDesc = caseDesc ? `TEST CASE: ${caseDesc}\n` : "";
 
   try {
     if (first) {
@@ -24,9 +23,9 @@ export const assert = ({
       stepText = `Called first: ${first}, returned: ${firstValue}\n`;
     }
 
-    /* Creating exeption text */
+    /* Creating expectation text */
     const exceptValue = JSON.stringify(excepted) || "";
-    const excepText = `Exceptation is: ${
+    const exceptText = `Expectation is: ${
       exceptValue.length > tooLong ? "...too long..." : exceptValue
     }\n`;
 
@@ -41,13 +40,13 @@ export const assert = ({
     /* Creating the decision text */
     testResult = resultValue == exceptValue;
     const decision = `Result:     ${
-      resultValue == exceptValue ? `📗successed📗` : `📕FAILED📕`
+      resultValue == exceptValue ? `📗succeeded📗` : `📕FAILED📕`
     }`;
 
     !testResult && failed++;
 
     /* printout */
-    printout = caseDesc + stepText + resultText + excepText + decision;
+    printout = caseDesc + stepText + resultText + exceptText + decision;
   } catch (e) {
     failed++;
     testResult = false;
@@ -63,39 +62,39 @@ export const assert = ({
 
   printout = header + printout + "\n";
 
-  return [{ printout, testResult }, tests, failed];
+  return [{printout, testResult}, tests, failed];
 };
 
 export const batchAssert = (
   cases,
-  { showFailed, showSuccessed, length } = {
+  {showFailed, showSucceeded, length} = {
     showFailed: true,
-    showSuccessed: false,
-  }
+    showSucceeded: false,
+  },
 ) => {
   let tests = 0;
   let failed = 0;
   let result;
 
   const results = cases.map((cs) => {
-    [result, tests, failed] = assert({ ...cs, tests, failed, length });
+    [result, tests, failed] = assert({...cs, tests, failed, length});
     return result;
   });
 
-  const faliedTests = results.filter((result) => result.testResult);
-  const successedTests = results.filter((result) => !result.testResult);
+  const failedTests = results.filter((result) => result.testResult);
+  const succeededTests = results.filter((result) => !result.testResult);
 
   const summaryHeader =
     "----------------------------------- TESTS ENDED! -----------------------------------\n";
 
   let summary = summaryHeader;
   summary += `${tests} performed\n`;
-  summary += `${tests - failed} test was 📗successed📗\n`;
+  summary += `${tests - failed} test was 📗succeeded📗\n`;
   failed > 0 && (summary += `${failed} test was 📕FAILED📕\n`);
   summary += summaryHeader;
 
   console.warn(summary);
 
-  showFailed && successedTests.forEach((sT) => console.warn(sT.printout));
-  showSuccessed && faliedTests.forEach((fT) => console.warn(fT.printout));
+  showFailed && succeededTests.forEach((sT) => console.warn(sT.printout));
+  showSucceeded && failedTests.forEach((fT) => console.warn(fT.printout));
 };
