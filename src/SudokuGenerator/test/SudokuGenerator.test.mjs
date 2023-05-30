@@ -86,7 +86,7 @@ const cases = [
     first: () => {
       const level = "easy";
       const {puzzle} = generator.generatePuzzle({
-        level,
+        level
       });
 
       sudokuBoard.setBoard(puzzle);
@@ -102,7 +102,7 @@ const cases = [
     first: () => {
       const level = "medium";
       const {puzzle} = generator.generatePuzzle({
-        level,
+        level
       });
 
       sudokuBoard.setBoard(puzzle);
@@ -118,7 +118,7 @@ const cases = [
     first: () => {
       const level = "hard";
       const {puzzle} = generator.generatePuzzle({
-        level,
+        level
       });
 
       sudokuBoard.setBoard(puzzle);
@@ -134,7 +134,7 @@ const cases = [
     first: () => {
       const level = "evil";
       const {puzzle} = generator.generatePuzzle({
-        level,
+        level
       });
 
       sudokuBoard.setBoard(puzzle);
