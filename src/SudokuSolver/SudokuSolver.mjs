@@ -119,7 +119,7 @@ export default class SudokuSolver {
     arg:    null,
     return: returns an array of SudokuBoards (Object) whit a number that is written already in a unfilled cell or a Boolean with value false if there are no more possibility */
   #getPosiblities() {
-    const nextCell = this.#sudokuboard.getFreeCellWithLessPosiblity();
+    const nextCell = this.#sudokuboard.getFreeCellWithLessPossibility();
     //const nextCell = this.#sudokuboard.getFirstFreeCell();
 
     if (nextCell) {
