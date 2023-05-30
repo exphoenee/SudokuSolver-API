@@ -5,8 +5,8 @@ import SudokuSolver from "../SudokuSolver.mjs";
 import SudokuBoard from "../../SudokuBoard/SudokuBoard.mjs";
 import { clearBoardInfo } from "./SudokuSolver.exceptions.mjs";
 import {
-  claerBoardSolution1,
-  claerBoardSolution2,
+  clearBoardSolution1,
+  clearBoardSolution2,
   puzzle2d,
   puzzle1d,
   puzzleStr,
@@ -33,7 +33,7 @@ const cases = [
     caseDesc: "Solving the clear board.",
     first: null,
     check: () => solver.solvePuzzle(),
-    excepted: claerBoardSolution2,
+    excepted: clearBoardSolution2,
   },
   {
     caseDesc: "Setting the eazy puzzle to the board and solving that.",
@@ -44,14 +44,14 @@ const cases = [
   {
     caseDesc: "Clearing the board, and solving the easy puzzle.",
     first: () => solver.clearBoard(),
-    check: () => solver.solvePuzzle({ puzzle: puzzle2d }),
+    check: () => solver.solvePuzzle({puzzle: puzzle2d}),
     excepted: puzzleSolution,
   },
   {
     caseDesc:
       "Clearing the board, and solving the easy puzzle, gets the format in 1D array.",
     first: () => solver.clearBoard(),
-    check: () => solver.solvePuzzle({ puzzle: puzzle2d, format: "1D" }),
+    check: () => solver.solvePuzzle({puzzle: puzzle2d, format: "1D"}),
     excepted: puzzleSolution.flat(),
   },
   {
@@ -107,16 +107,17 @@ const cases = [
     caseDesc:
       "Setting the eazy puzzle to the board as 2D array and trying to solve that under 1 ms.",
     first: () => solver.setBoard(puzzle2d),
-    check: () => solver.solvePuzzle({ timeOut: 1 }),
+    check: () => solver.solvePuzzle({timeOut: 1}),
     excepted: false,
   },
   {
     caseDesc:
-      "Setting the eazy puzzle to the board as 2D array and trying to solve that under 5000 ms.",
+      "Setting the easy puzzle to the board as 2D array and trying to solve that under 5000 ms.",
     first: () => solver.setBoard(puzzle2d),
-    check: () => solver.solvePuzzle({ timeOut: 5000 }),
+    check: () => solver.solvePuzzle({timeOut: 5000}),
     excepted: puzzleSolution,
   },
 ];
 
-batchAssert(cases, { showFailed: true, showSuccessed: false });
+console.log(puzzleStr);
+batchAssert(cases, {showFailed: true, showSuccessed: true});
