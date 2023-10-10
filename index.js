@@ -65,9 +65,7 @@ app.get("/solve/:puzzle", function (req, res) {
 });
 
 app.get("/generate/:level", function (req, res) {
-  const {level} = {
-    level: req.params.level,
-  };
+  const {level} = req.params.level;
   const xDim = 9;
   const yDim = 9;
 
