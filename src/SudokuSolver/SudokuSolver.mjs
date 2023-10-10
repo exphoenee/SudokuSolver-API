@@ -151,7 +151,7 @@ export default class SudokuSolver {
       let possibility = possibilities.shift();
       this.#sudokuBoard.setBoard(possibility.getCellValues({format: "2D"}));
       const treeBranch = this.#solve(possibility);
-      return treeBranch ? treeBranch : this.#checkPossibilities(possibilities);
+      return treeBranch || this.#checkPossibilities(possibilities);
     } else {
       return false;
     }
