@@ -1,11 +1,17 @@
 {
   "name": "sudokusolver-api",
-  "version": "1.0.0",
-  "description": "This is a Sudoku Solver Rest Api",
+  "version": "3.0.0",
+  "description": "Sudoku Solver REST API with puzzle generation",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "format": "prettier --write . --ignore-path .gitignore"
   },
   "repository": {
     "type": "git",
@@ -13,8 +19,9 @@
   },
   "keywords": [
     "Sudoku",
-    "Docker",
-    "Api"
+    "Solver",
+    "API",
+    "Express"
   ],
   "author": "exphoenee",
   "license": "ISC",
@@ -23,13 +30,24 @@
   },
   "homepage": "https://github.com/exphoenee/SudokuSolver-API#readme",
   "dependencies": {
-    "Batch": "file:./src/SudokuBoard/Batch/Batch.mjs",
-    "Cell": "file:./src/SudokuBoard/Cell/Cell.mjs",
-    "express": "^4.18.1",
-    "SudokuBoard": "file:./src/SudokuBoard/SudokuBoard.mjs",
-    "SudokuSolver": "file:./src/SudokuSolver/SudokuSolver.mjs"
+    "express": "^4.18.1"
   },
   "devDependencies": {
-    "nodemon": "^2.0.20"
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "nodemon": "^2.0.20",
+    "prettier": "^3.2.5"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {},
+    "moduleFileExtensions": [
+      "js",
+      "mjs"
+    ],
+    "testMatch": [
+      "**/__tests__/**/*.test.js"
+    ],
+    "verbose": true
   }
 }
