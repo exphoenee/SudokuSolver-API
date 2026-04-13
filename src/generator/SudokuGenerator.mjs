@@ -2,6 +2,7 @@
 
 import SudokuBoard from '../core/SudokuBoard/SudokuBoard.mjs';
 import SudokuSolver from '../solver/SudokuSolver.mjs';
+import { config } from '../config/index.js';
 
 /**
  * @fileoverview SudokuGenerator - Generates Sudoku puzzles of various difficulty levels
@@ -19,7 +20,9 @@ export default class SudokuGenerator {
   #solver;
   #warnings;
   #errors;
-  #defaultLevels;
+  #levels;
+  #trialGoalRatio;
+  #timeout;
 
   /**
    * Creates a new SudokuGenerator instance.
@@ -32,7 +35,9 @@ export default class SudokuGenerator {
     this.#warnings = warnings;
     this.#errors = errors;
 
-    this.#defaultLevels = { easy: 35, medium: 45, hard: 65, evil: 75 };
+    this.#levels = { ...config.get('generator.levels') };
+    this.#trialGoalRatio = config.get('generator.trialGoalRatio');
+    this.#timeout = config.get('generator.defaultTimeout');
 
     this.#sudokuboard = new SudokuBoard(this.#boxSizeX, this.#boxSizeY);
     this.#solver = new SudokuSolver(this.#sudokuboard);
@@ -51,7 +56,7 @@ export default class SudokuGenerator {
    * @returns {Object}
    */
   get levels() {
-    return this.#defaultLevels;
+    return this.#levels;
   }
 
   /**
@@ -124,7 +129,7 @@ export default class SudokuGenerator {
   generatePuzzle({ level = 'easy' } = {}) {
     const nrOfCell = this.sudokuboard.cells.length;
     const cellAmount = {
-      ...this.#defaultLevels,
+      ...this.#levels,
       default: () => (isNaN(+level) ? 75 : +level),
     };
 
@@ -134,7 +139,7 @@ export default class SudokuGenerator {
         : Math.max(+level * nrOfCell, 5)) / 100
     );
 
-    const trialGoal = Math.floor(nrOfCell * 0.24);
+    const trialGoal = Math.floor(nrOfCell * this.#trialGoalRatio);
     let trialStep = 0;
     let solution;
 
@@ -148,7 +153,7 @@ export default class SudokuGenerator {
         .forEach(cell => this.setCellRandomValue(cell));
 
       trialStep++;
-      solution = this.#solver.solvePuzzle({ format: 'string', timeOut: 10000 });
+      solution = this.#solver.solvePuzzle({ format: 'string', timeOut: this.#timeout });
     } while (solution === false);
 
     [...this.#sudokuboard.cells]
