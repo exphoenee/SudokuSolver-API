@@ -1,10 +1,13 @@
-import { createApp } from './dist/app.js';
+import 'dotenv/config';
+import { createApp } from './src/app.js';
+import { config } from './src/config/index.js';
 
-const PORT = process.env.PORT || 3000;
+const PORT = config.get<number>('api.port') || 3000;
+const HOST = config.get<string>('api.host') || '0.0.0.0';
 const app = createApp();
 
-app.listen(PORT, () => {
-  console.log(`Sudoku Solver API running on port ${PORT}`);
+app.listen(PORT, HOST, () => {
+  console.log(`Sudoku Solver API running on ${HOST}:${PORT}`);
 });
 
 export default app;

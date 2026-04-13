@@ -332,7 +332,7 @@ src/
 ### Phase 3: Scale (2-4 weeks) ✅ COMPLETED
 
 - [x] TypeScript migration
-- [ ] Extract service classes
+- [x] Extract service classes
 - [ ] Add performance benchmarks
 - [ ] Implement caching layer
 
@@ -359,6 +359,11 @@ src/
    - Added `npm run build` to compile TypeScript to `dist/`
    - Updated test imports to use `dist/` for compiled modules
    - All 35 tests pass with TypeScript build
+
+4. **Extracted Service Classes**:
+   - `src/core/services/BoardValidator.ts` - Validation logic (validateCoord, hasDuplicates, puzzleIsCorrect)
+   - `src/core/services/PossibilityCalculator.ts` - Possibility calculation (getCellPossibilities, getPossibilityMatrix)
+   - Updated `SudokuBoard` to use injected service instances
 
 ---
 

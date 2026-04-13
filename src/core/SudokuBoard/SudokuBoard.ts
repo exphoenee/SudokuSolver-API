@@ -1,5 +1,7 @@
 import Cell from './Cell/Cell.js';
 import Batch from './Batch/Batch.js';
+import { BoardValidator } from '../services/index.js';
+import { PossibilityCalculator } from '../services/index.js';
 import type {
   CellSelector,
   BoardSize,
@@ -21,6 +23,8 @@ export default class SudokuBoard {
   #cols: Batch[] = [];
   #boxes: Batch[] = [];
   #separator: string;
+  #validator: BoardValidator;
+  #possibilityCalculator: PossibilityCalculator;
 
   constructor(
     boxSizeX: number,
@@ -35,6 +39,9 @@ export default class SudokuBoard {
     this.#cellNumber = this.#dimensionX * this.#dimensionY;
     this.#boxSize = this.#boxSizeX * this.#boxSizeY;
     this.#separator = ',';
+
+    this.#validator = new BoardValidator(this.#dimensionX, this.#dimensionY);
+    this.#possibilityCalculator = new PossibilityCalculator();
 
     this.#generateBoard();
     if (this.#boardFormat(puzzle)[0] !== 'err') {
@@ -157,21 +164,19 @@ export default class SudokuBoard {
 
   getCellPossibilities(params: CellSelector): CellValue[] {
     const cell = this.getCell(params);
-    const [missingFromCol, missingFromRow, missingFromBox] = this.getBatchesOfCell({ cell }).map(
-      batch => batch.getMissingNumbers()
-    );
-    const intersection = (arr1: CellValue[], arr2: CellValue[]): CellValue[] =>
-      arr1.filter(value => arr2.includes(value));
-    return intersection(intersection(missingFromCol, missingFromRow), missingFromBox);
+    return this.#possibilityCalculator.getCellPossibilities(cell, this.getBatchesOfCell.bind(this));
   }
 
   hasBatchDuplicates(batch: Batch): boolean {
-    return batch.hasDuplicates();
+    return this.#validator.hasBatchDuplicates(batch);
   }
 
   hasCellDuplicates(params: CellSelector): boolean {
-    const cell = this.getCell(params);
-    return this.getBatchesOfCell({ cell }).every(batch => batch.hasDuplicates());
+    return this.#validator.hasCellDuplicates(
+      this.getBatchesOfCell.bind(this),
+      params,
+      this.getCell.bind(this)
+    );
   }
 
   #markCellIssue(params: CellSelector): void {
@@ -203,10 +208,7 @@ export default class SudokuBoard {
   }
 
   puzzleIsCorrect(): boolean {
-    for (const batch of [...this.#rows, ...this.#cols, ...this.#boxes])
-      if (batch.hasDuplicates()) return false;
-    for (const cell of this.cells) if (cell.possibilities.length === 0) return false;
-    return true;
+    return this.#validator.puzzleIsCorrect(this.#rows, this.#cols, this.#boxes, this.#cells);
   }
 
   getFirstFreeCell(): Cell | false {
@@ -219,20 +221,24 @@ export default class SudokuBoard {
   }
 
   updatePossibilityMap(): void {
-    this.cells.forEach(cell => cell.setPossibilities(this.getCellPossibilities(cell)));
+    this.#possibilityCalculator.updatePossibilityMap(
+      this.#cells,
+      this.getCellPossibilities.bind(this)
+    );
   }
 
   getPossibilityMatrix(): CellValue[][] {
-    return this.cells.map(cell => this.getCellPossibilities(cell));
+    return this.#possibilityCalculator.getPossibilityMatrix(
+      this.#cells,
+      this.getCellPossibilities.bind(this)
+    );
   }
 
   getFreeCellWithLeastPossibilities(): Cell | false {
-    const sorted = this.#cells
-      .filter(cell => cell.value === 0)
-      .map(cell => ({ cell, possibilities: this.getCellPossibilities(cell) }))
-      .sort((a, b) => a.possibilities.length - b.possibilities.length);
-    const freeCell = sorted[0]?.cell;
-    return freeCell && this.getCellPossibilities(freeCell).length > 0 ? freeCell : false;
+    return this.#possibilityCalculator.getFreeCellWithLeastPossibilities(
+      this.#cells,
+      this.getCellPossibilities.bind(this)
+    );
   }
 
   coordsOfFirstFreeCell(): { x: number; y: number } | false {
@@ -241,7 +247,7 @@ export default class SudokuBoard {
   }
 
   validateCoord(x: number, y: number): boolean {
-    return 0 <= x && x <= this.#dimensionX - 1 && 0 <= y && y <= this.#dimensionY - 1;
+    return this.#validator.validateCoord(x, y);
   }
 
   #boardFormat(board: PuzzleInput | null): [string, string?] {

@@ -26,17 +26,51 @@ export function createApp(): Application {
   app.use(express.json());
 
   app.get('/', (_req: Request, res: Response) => {
-    res.json(
-      successResponse({
-        info: 'Sudoku Solver API',
-        version: '3.0.0',
-        endpoints: {
-          solve: 'POST /solve with { puzzle: string, format: "string"|"1D"|"2D" }',
-          generate: 'GET /generate/:level where level is easy|medium|hard|evil',
-          health: 'GET /health',
-        },
-      })
-    );
+    res.type('html').send(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sudoku Solver API</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; background: #f5f5f5; }
+    h1 { color: #333; border-bottom: 2px solid #007acc; padding-bottom: 10px; }
+    .endpoint { background: white; border-radius: 8px; padding: 15px; margin: 15px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .method { display: inline-block; padding: 4px 12px; border-radius: 4px; font-weight: bold; margin-right: 10px; }
+    .get { background: #61affe; color: white; }
+    .post { background: #49cc90; color: white; }
+    .path { font-family: monospace; font-size: 1.1em; color: #333; }
+    .description { color: #666; margin-top: 8px; }
+    code { background: #eee; padding: 2px 6px; border-radius: 3px; }
+    pre { background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 6px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>Sudoku Solver API</h1>
+  <p><strong>Version:</strong> 3.0.0</p>
+  
+  <div class="endpoint">
+    <span class="method post">POST</span>
+    <span class="path">/solve</span>
+    <p class="description">Solve a Sudoku puzzle</p>
+    <pre>body: { puzzle: string, format?: "string" | "1D" | "2D" }</pre>
+  </div>
+  
+  <div class="endpoint">
+    <span class="method get">GET</span>
+    <span class="path">/generate/:level</span>
+    <p class="description">Generate a random puzzle</p>
+    <p><strong>Levels:</strong> <code>easy</code> | <code>medium</code> | <code>hard</code> | <code>evil</code></p>
+  </div>
+  
+  <div class="endpoint">
+    <span class="method get">GET</span>
+    <span class="path">/health</span>
+    <p class="description">Health check endpoint</p>
+  </div>
+</body>
+</html>`);
   });
 
   app.get('/health', (_req: Request, res: Response) => {
