@@ -1,15 +1,15 @@
-FROM node:latest
+FROM node:20-alpine
 
-RUN mkdir -p /usr/src/app
+WORKDIR /app
 
-WORKDIR /usr/src/app
+COPY package*.json ./
 
-COPY package.json /usr/src/app
+RUN npm ci
 
-RUN npm install
+COPY . .
 
-COPY . /usr/src/app
+RUN npm run build
 
-EXPOSE 3000
+EXPOSE 3005
 
 CMD ["npm", "start"]

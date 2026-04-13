@@ -217,13 +217,13 @@ const solveSchema = {
 
 ### 7.2 Suggested Additions
 
-| Package        | Purpose               |
-| -------------- | --------------------- |
-| zod / joi      | Input validation      |
-| helmet         | Security headers      |
-| cors           | Cross-origin requests |
-| compression    | Response compression  |
-| pino / winston | Structured logging    |
+| Package        | Purpose               | Status  |
+| -------------- | --------------------- | ------- |
+| zod            | Input validation      | ✅ Done |
+| helmet         | Security headers      | -       |
+| cors           | Cross-origin requests | -       |
+| compression    | Response compression  | -       |
+| pino / winston | Structured logging    | -       |
 
 ---
 
@@ -333,8 +333,9 @@ src/
 
 - [x] TypeScript migration
 - [x] Extract service classes
-- [ ] Add performance benchmarks
-- [ ] Implement caching layer
+- [x] Add performance benchmarks
+- [x] Implement caching layer
+- [x] Add Zod validation with type inference
 
 **Changes made:**
 
@@ -364,6 +365,12 @@ src/
    - `src/core/services/BoardValidator.ts` - Validation logic (validateCoord, hasDuplicates, puzzleIsCorrect)
    - `src/core/services/PossibilityCalculator.ts` - Possibility calculation (getCellPossibilities, getPossibilityMatrix)
    - Updated `SudokuBoard` to use injected service instances
+
+5. **Zod Validation with Type Inference** (`src/utils/zod.ts`, `src/utils/validation.ts`):
+   - `solveRequestSchema` - Schema for /solve endpoint with puzzle validation
+   - `generateRequestSchema` - Schema for /generate/:level endpoint
+   - Type inference via `z.infer<typeof schema>`
+   - Replaces manual validation with Zod-powered validation
 
 ---
 

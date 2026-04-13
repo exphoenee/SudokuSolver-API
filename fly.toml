@@ -1,4 +1,4 @@
-# fly.toml file generated for sudoku-solver-api on 2023-03-15T14:19:42+01:00
+# fly.toml file generated for sudoku-solver-api
 
 app = "sudoku-solver-api"
 kill_signal = "SIGINT"
@@ -7,13 +7,14 @@ primary_region = "otp"
 processes = []
 
 [env]
+  PORT = "3005"
 
 [experimental]
   auto_rollback = true
 
 [[services]]
   http_checks = []
-  internal_port = 3000
+  internal_port = 3005
   processes = ["app"]
   protocol = "tcp"
   script_checks = []

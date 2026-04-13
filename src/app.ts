@@ -1,4 +1,5 @@
 import express, { type Application, type Request, type Response } from 'express';
+import swaggerUi from 'swagger-ui-express';
 import SudokuSolver from './solver/SudokuSolver.js';
 import SudokuBoard from './core/SudokuBoard/SudokuBoard.js';
 import SudokuGenerator from './generator/SudokuGenerator.js';
@@ -6,7 +7,8 @@ import { config } from './config/index.js';
 import {
   validateSolveRequest,
   validateGenerateRequest,
-  throwIfErrors,
+  type SolveRequest,
+  type GenerateRequest,
 } from './utils/validation.js';
 import {
   successResponse,
@@ -15,7 +17,8 @@ import {
   formatGenerateResponse,
 } from './utils/response.js';
 import { SudokuError, ValidationError } from './utils/errors.js';
-import type { PuzzleInput, PuzzleFormat, DifficultyLevel } from './types.js';
+import { swaggerSpec } from './docs/swagger.js';
+import { cache } from './utils/cache.js';
 
 /**
  * Creates and configures the Express application.
@@ -24,6 +27,7 @@ import type { PuzzleInput, PuzzleFormat, DifficultyLevel } from './types.js';
 export function createApp(): Application {
   const app = express();
   app.use(express.json());
+  app.use(cache.middleware({ ttl: 60000, enabled: true }));
 
   app.get('/', (_req: Request, res: Response) => {
     res.type('html').send(`
@@ -44,57 +48,66 @@ export function createApp(): Application {
     .description { color: #666; margin-top: 8px; }
     code { background: #eee; padding: 2px 6px; border-radius: 3px; }
     pre { background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 6px; overflow-x: auto; }
+    .docs-link { background: #ff6b6b; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; display: inline-block; margin-top: 20px; font-weight: bold; }
+    .docs-link:hover { background: #ee5a5a; }
   </style>
 </head>
 <body>
   <h1>Sudoku Solver API</h1>
   <p><strong>Version:</strong> 3.0.0</p>
-  
+
   <div class="endpoint">
     <span class="method post">POST</span>
     <span class="path">/solve</span>
     <p class="description">Solve a Sudoku puzzle</p>
     <pre>body: { puzzle: string, format?: "string" | "1D" | "2D" }</pre>
   </div>
-  
+
   <div class="endpoint">
     <span class="method get">GET</span>
     <span class="path">/generate/:level</span>
     <p class="description">Generate a random puzzle</p>
     <p><strong>Levels:</strong> <code>easy</code> | <code>medium</code> | <code>hard</code> | <code>evil</code></p>
   </div>
-  
+
   <div class="endpoint">
     <span class="method get">GET</span>
     <span class="path">/health</span>
     <p class="description">Health check endpoint</p>
   </div>
+
+  <a href="/api-docs" class="docs-link">Open API Documentation</a>
 </body>
 </html>`);
   });
 
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
   app.get('/health', (_req: Request, res: Response) => {
     res.json(successResponse({ status: 'healthy' }));
+  });
+
+  app.get('/cache', (_req: Request, res: Response) => {
+    res.json(successResponse(cache.stats()));
+  });
+
+  app.delete('/cache', (_req: Request, res: Response) => {
+    cache.clear();
+    res.json(successResponse({ cleared: true }));
   });
 
   app.post('/solve', (req: Request, res: Response) => {
     const startTime = Date.now();
 
     try {
-      const body = req.body as {
-        puzzle?: PuzzleInput;
-        format?: PuzzleFormat;
-        unfilledChar?: string;
-      };
+      const body = validateSolveRequest(req.body) as SolveRequest;
       const { puzzle, format = 'string', unfilledChar = '.' } = body;
-
-      const validationErrors = validateSolveRequest({ puzzle, format, unfilledChar });
-      throwIfErrors(validationErrors);
 
       const board = new SudokuBoard(
         config.get<number>('board.defaultBoxSizeX') ?? 3,
         config.get<number>('board.defaultBoxSizeY') ?? 3
       );
+
       const solver = new SudokuSolver(board);
 
       const solution = solver.solvePuzzle({
@@ -125,11 +138,8 @@ export function createApp(): Application {
     const startTime = Date.now();
 
     try {
-      const params = req.params as { level?: string };
-      const level = params.level ?? 'easy';
-
-      const validationErrors = validateGenerateRequest({ level });
-      throwIfErrors(validationErrors);
+      const params = validateGenerateRequest(req.params) as GenerateRequest;
+      const level = params.level;
 
       const board = new SudokuBoard(
         config.get<number>('board.defaultBoxSizeX') ?? 3,
@@ -137,7 +147,7 @@ export function createApp(): Application {
       );
       const generator = new SudokuGenerator({ sudokuboard: board });
 
-      const results = generator.generatePuzzle({ level: level.toLowerCase() as DifficultyLevel });
+      const results = generator.generatePuzzle({ level });
       const duration = Date.now() - startTime;
 
       res.json(formatGenerateResponse(results, { durationMs: duration }));
