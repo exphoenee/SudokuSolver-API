@@ -26,7 +26,7 @@ jobs:
         run: npm run build
 
       - name: Install Flyctl
-        uses: superfly/flyctl-actions/setup-flyctl@main
+        uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Deploy to Fly
         run: flyctl deploy --remote-only
