@@ -16,6 +16,10 @@ const options: swaggerJsdoc.Options = {
         url: 'http://localhost:3005',
         description: 'Local development server',
       },
+      {
+        url: 'https://sudoku-solver-api.fly.dev',
+        description: 'Production server',
+      },
     ],
     tags: [
       { name: 'Solve', description: 'Sudoku solving endpoints' },

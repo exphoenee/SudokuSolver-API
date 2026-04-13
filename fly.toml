@@ -3,7 +3,7 @@
 app = "sudoku-solver-api"
 kill_signal = "SIGINT"
 kill_timeout = 5
-primary_region = "otp"
+primary_region = "fra"
 processes = []
 
 [env]
