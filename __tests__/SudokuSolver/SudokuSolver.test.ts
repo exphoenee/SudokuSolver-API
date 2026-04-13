@@ -1,11 +1,11 @@
 import { describe, test, expect, beforeEach } from '@jest/globals';
-import SudokuBoard from '../../src/core/SudokuBoard/SudokuBoard.mjs';
-import SudokuSolver from '../../src/solver/SudokuSolver.mjs';
-import { puzzle2d, puzzleSolution } from '../data/puzzles.mjs';
+import SudokuBoard from '../../dist/core/SudokuBoard/SudokuBoard.js';
+import SudokuSolver from '../../dist/solver/SudokuSolver.js';
+import { puzzle2d, puzzleSolution } from '../data/puzzles.js';
 
 describe('SudokuSolver', () => {
-  let board;
-  let solver;
+  let board: SudokuBoard;
+  let solver: SudokuSolver;
 
   beforeEach(() => {
     board = new SudokuBoard(3, 3);
@@ -45,7 +45,7 @@ describe('SudokuSolver', () => {
       board.setBoard(puzzle2d);
       solver.clearBoard();
       const values = board.getCellValues({ format: '1D' });
-      expect(values.every(v => v === 0)).toBe(true);
+      expect(values.every((v: number) => v === 0)).toBe(true);
     });
 
     test('sets board from puzzle parameter', () => {

@@ -1,4 +1,4 @@
-export const clearBoardSolution1 = [
+export const clearBoardSolution1: number[][] = [
   [1, 2, 3, 4, 5, 6, 7, 8, 9],
   [4, 5, 6, 7, 8, 9, 1, 2, 3],
   [7, 8, 9, 1, 2, 3, 4, 5, 6],
@@ -9,7 +9,8 @@ export const clearBoardSolution1 = [
   [6, 4, 2, 9, 7, 8, 5, 3, 1],
   [9, 7, 8, 5, 3, 1, 6, 4, 2],
 ];
-export const clearBoardSolution2 = [
+
+export const clearBoardSolution2: number[][] = [
   [1, 2, 3, 4, 5, 6, 7, 8, 9],
   [4, 5, 6, 7, 8, 9, 1, 2, 3],
   [7, 8, 9, 1, 2, 3, 4, 5, 6],
@@ -21,7 +22,7 @@ export const clearBoardSolution2 = [
   [9, 6, 8, 3, 4, 1, 5, 7, 2],
 ];
 
-export const puzzle2d = [
+export const puzzle2d: number[][] = [
   [1, 0, 0, 0, 0, 7, 0, 0, 3],
   [9, 0, 6, 0, 0, 8, 2, 0, 4],
   [0, 3, 0, 5, 2, 0, 0, 9, 0],
@@ -32,9 +33,10 @@ export const puzzle2d = [
   [5, 0, 8, 1, 0, 0, 7, 0, 2],
   [6, 0, 0, 7, 0, 0, 0, 0, 5],
 ];
-export const puzzle1d = puzzle2d.flat(1);
-export const puzzleStr = puzzle1d.join(',');
-export const puzzleSolution = [
+
+export const puzzle1d: number[] = puzzle2d.flat(1);
+export const puzzleStr: string = puzzle1d.join(',');
+export const puzzleSolution: number[][] = [
   [1, 8, 2, 9, 4, 7, 6, 5, 3],
   [9, 5, 6, 3, 1, 8, 2, 7, 4],
   [4, 3, 7, 5, 2, 6, 1, 9, 8],
@@ -46,7 +48,7 @@ export const puzzleSolution = [
   [6, 1, 9, 7, 8, 2, 4, 3, 5],
 ];
 
-export const unsolvable2d = [
+export const unsolvable2d: number[][] = [
   [0, 1, 2, 3, 4, 5, 6, 7, 8],
   [9, 0, 0, 0, 0, 0, 0, 0, 0],
   [8, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -57,10 +59,11 @@ export const unsolvable2d = [
   [3, 0, 0, 0, 0, 0, 0, 0, 0],
   [2, 0, 0, 0, 0, 0, 0, 0, 0],
 ];
-export const unsolvable1d = unsolvable2d.flat(1);
-export const unsolvableStr = unsolvable1d.join(',');
 
-export const wrong2d = [
+export const unsolvable1d: number[] = unsolvable2d.flat(1);
+export const unsolvableStr: string = unsolvable1d.join(',');
+
+export const wrong2d: number[][] = [
   [1, 2, 3, 4, 5, 6, 7, 8, 9],
   [1, 2, 3, 4, 5, 6, 7, 8, 9],
   [1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -71,10 +74,11 @@ export const wrong2d = [
   [1, 2, 3, 4, 5, 6, 7, 8, 9],
   [1, 2, 3, 4, 5, 6, 7, 8, 9],
 ];
-export const wrong1d = wrong2d.flat(1);
-export const wrongStr = wrong1d.join(',');
 
-export const puzzle2x3 = [
+export const wrong1d: number[] = wrong2d.flat(1);
+export const wrongStr: string = wrong1d.join(',');
+
+export const puzzle2x3: number[][] = [
   [1, 0, 0, 0, 0, 0, 0],
   [0, 6, 0, 0, 2, 0, 4],
   [0, 3, 0, 5, 2, 0, 0],

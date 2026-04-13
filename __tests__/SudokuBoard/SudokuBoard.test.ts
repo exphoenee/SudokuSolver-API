@@ -1,9 +1,9 @@
 import { describe, test, expect, beforeEach } from '@jest/globals';
-import SudokuBoard from '../../src/core/SudokuBoard/SudokuBoard.mjs';
-import { puzzle2d } from '../data/puzzles.mjs';
+import SudokuBoard from '../../dist/core/SudokuBoard/SudokuBoard.js';
+import { puzzle2d } from '../data/puzzles.js';
 
 describe('SudokuBoard', () => {
-  let board;
+  let board: SudokuBoard;
 
   beforeEach(() => {
     board = new SudokuBoard(3, 3);

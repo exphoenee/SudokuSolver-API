@@ -4,7 +4,9 @@
  */
 
 export class SudokuError extends Error {
-  constructor(message, code = 'UNKNOWN_ERROR') {
+  code: string;
+
+  constructor(message: string, code = 'UNKNOWN_ERROR') {
     super(message);
     this.name = 'SudokuError';
     this.code = code;
@@ -19,7 +21,11 @@ export class InvalidPuzzleError extends SudokuError {
 }
 
 export class InvalidCellValueError extends SudokuError {
-  constructor(value, min, max) {
+  value: number;
+  min: number;
+  max: number;
+
+  constructor(value: number, min: number, max: number) {
     super(`Invalid cell value: ${value}. Must be between ${min} and ${max}`, 'INVALID_CELL_VALUE');
     this.name = 'InvalidCellValueError';
     this.value = value;
@@ -29,7 +35,7 @@ export class InvalidCellValueError extends SudokuError {
 }
 
 export class InvalidCoordinatesError extends SudokuError {
-  constructor(x, y, maxX, maxY) {
+  constructor(x: number, y: number, maxX: number, maxY: number) {
     super(
       `Invalid coordinates: (${x}, ${y}). Must be within [0, ${maxX}] x [0, ${maxY}]`,
       'INVALID_COORDINATES'
@@ -46,7 +52,9 @@ export class UnsolvablePuzzleError extends SudokuError {
 }
 
 export class SolverTimeoutError extends SudokuError {
-  constructor(timeoutMs) {
+  timeoutMs: number;
+
+  constructor(timeoutMs: number) {
     super(`Solver timed out after ${timeoutMs}ms`, 'SOLVER_TIMEOUT');
     this.name = 'SolverTimeoutError';
     this.timeoutMs = timeoutMs;
@@ -54,7 +62,10 @@ export class SolverTimeoutError extends SudokuError {
 }
 
 export class InvalidDifficultyError extends SudokuError {
-  constructor(level, validLevels) {
+  level: string;
+  validLevels: string[];
+
+  constructor(level: string, validLevels: string[]) {
     super(
       `Invalid difficulty level: "${level}". Must be one of: ${validLevels.join(', ')}`,
       'INVALID_DIFFICULTY'
@@ -65,8 +76,15 @@ export class InvalidDifficultyError extends SudokuError {
   }
 }
 
+export interface ValidationErrorDetail {
+  field: string;
+  message: string;
+}
+
 export class ValidationError extends SudokuError {
-  constructor(errors) {
+  errors: ValidationErrorDetail[];
+
+  constructor(errors: ValidationErrorDetail[]) {
     super('Validation failed', 'VALIDATION_ERROR');
     this.name = 'ValidationError';
     this.errors = errors;

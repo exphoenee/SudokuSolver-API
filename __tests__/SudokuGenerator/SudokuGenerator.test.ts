@@ -1,10 +1,11 @@
 import { describe, test, expect, beforeEach } from '@jest/globals';
-import SudokuBoard from '../../src/core/SudokuBoard/SudokuBoard.mjs';
-import SudokuGenerator from '../../src/generator/SudokuGenerator.mjs';
+import SudokuBoard from '../../dist/core/SudokuBoard/SudokuBoard.js';
+import SudokuGenerator from '../../dist/generator/SudokuGenerator.js';
+import type { GenerationResult } from '../../dist/types.js';
 
 describe('SudokuGenerator', () => {
-  let board;
-  let generator;
+  let board: SudokuBoard;
+  let generator: SudokuGenerator;
 
   beforeEach(() => {
     board = new SudokuBoard(3, 3);
@@ -51,18 +52,18 @@ describe('SudokuGenerator', () => {
 
   describe('Puzzle Properties', () => {
     test('generated puzzle is valid string', () => {
-      const result = generator.generatePuzzle({ level: 'easy' });
+      const result = generator.generatePuzzle({ level: 'easy' }) as GenerationResult;
       expect(typeof result.puzzle).toBe('string');
     });
 
     test('generated solution is string format', () => {
-      const result = generator.generatePuzzle({ level: 'easy' });
+      const result = generator.generatePuzzle({ level: 'easy' }) as GenerationResult;
       expect(typeof result.solution).toBe('string');
       expect(result.solution.split(',').length).toBe(81);
     });
 
     test('has generation metadata', () => {
-      const result = generator.generatePuzzle({ level: 'easy' });
+      const result = generator.generatePuzzle({ level: 'easy' }) as GenerationResult;
       expect(result).toHaveProperty('generationTime');
       expect(result).toHaveProperty('trialStep');
       expect(result).toHaveProperty('level');

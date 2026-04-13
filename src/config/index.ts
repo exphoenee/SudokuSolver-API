@@ -3,7 +3,28 @@
  * @module config
  */
 
-const defaultConfig = {
+import type { GeneratorLevels } from '../types.js';
+
+interface DefaultConfig {
+  generator: {
+    levels: GeneratorLevels;
+    trialGoalRatio: number;
+    defaultTimeout: number;
+  };
+  solver: {
+    defaultTimeout: number;
+  };
+  board: {
+    defaultBoxSizeX: number;
+    defaultBoxSizeY: number;
+  };
+  api: {
+    port: number;
+    host: string;
+  };
+}
+
+const defaultConfig: DefaultConfig = {
   generator: {
     levels: {
       easy: 35,
@@ -22,24 +43,29 @@ const defaultConfig = {
     defaultBoxSizeY: 3,
   },
   api: {
-    port: process.env.PORT || 3000,
+    port: Number(process.env.PORT) || 3000,
     host: process.env.HOST || '0.0.0.0',
   },
 };
 
-function getNestedValue(obj, path) {
-  return path.split('.').reduce((current, key) => current?.[key], obj);
+function getNestedValue<T>(obj: unknown, path: string): T | undefined {
+  return path.split('.').reduce((current, key) => {
+    if (current && typeof current === 'object' && key in current) {
+      return (current as Record<string, unknown>)[key];
+    }
+    return undefined;
+  }, obj) as T | undefined;
 }
 
 class Config {
-  #config;
+  #config: DefaultConfig;
 
   constructor() {
     this.#config = { ...defaultConfig };
     this.loadFromEnv();
   }
 
-  loadFromEnv() {
+  loadFromEnv(): void {
     if (process.env.GENERATOR_TIMEOUT) {
       this.#config.generator.defaultTimeout = parseInt(process.env.GENERATOR_TIMEOUT, 10);
     }
@@ -54,22 +80,22 @@ class Config {
     }
   }
 
-  get(path) {
-    return getNestedValue(this.#config, path);
+  get<T>(path: string): T | undefined {
+    return getNestedValue<T>(this.#config, path);
   }
 
-  getAll() {
+  getAll(): DefaultConfig {
     return { ...this.#config };
   }
 
-  set(path, value) {
+  set(path: string, value: unknown): void {
     const keys = path.split('.');
-    let current = this.#config;
+    let current: Record<string, unknown> = this.#config as unknown as Record<string, unknown>;
     for (let i = 0; i < keys.length - 1; i++) {
-      if (!current[keys[i]]) {
+      if (!(keys[i] in current)) {
         current[keys[i]] = {};
       }
-      current = current[keys[i]];
+      current = current[keys[i]] as Record<string, unknown>;
     }
     current[keys[keys.length - 1]] = value;
   }

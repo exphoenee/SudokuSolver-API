@@ -1,27 +1,32 @@
-'use strict';
-import SudokuBoard from '../core/SudokuBoard/SudokuBoard.mjs';
-import SudokuSolver from '../solver/SudokuSolver.mjs';
-import SudokuGenerator from '../generator/SudokuGenerator.mjs';
+import SudokuBoard from '../core/SudokuBoard/SudokuBoard.js';
+import SudokuSolver from '../solver/SudokuSolver.js';
+import SudokuGenerator from '../generator/SudokuGenerator.js';
+import type { TileSizes, BoardSizes } from '../types.js';
+
+interface Examples {
+  [key: string]: number[][];
+}
 
 export default class SudokuRenderer {
-  #solver;
-  #sudokuboard;
-  #boxSizeX;
-  #boxSizeY;
-  #selectedCell;
-  #board;
-  #errors;
-  #control;
-  #numbers;
-  #tileSizes;
-  #boardSizes;
-  #generator;
-  #generatorBoard;
-  #examples;
+  #solver: SudokuSolver;
+  #sudokuboard: SudokuBoard;
+  #boxSizeX: number;
+  #boxSizeY: number;
+  #selectedCell: unknown;
+  #board!: HTMLElement;
+  #errors!: HTMLElement;
+  #control!: HTMLElement;
+  #numbers!: HTMLElement;
+  #tileSizes: TileSizes;
+  #boardSizes: BoardSizes;
+  #generator: SudokuGenerator;
+  #generatorBoard!: HTMLElement;
+  #examples: Examples;
+  app!: HTMLElement | null;
+  prevMsg: string = '';
+  userMessageTimeout: ReturnType<typeof setTimeout> | null = null;
 
-  constructor(boxSizeX, boxSizeY, puzzle = null) {
-    //using the SudokuBoard calss for handling the sudoku board
-
+  constructor(boxSizeX: number, boxSizeY: number, puzzle: number[][] | null = null) {
     this.#sudokuboard = new SudokuBoard(boxSizeX, boxSizeY, puzzle);
     this.#solver = new SudokuSolver(this.#sudokuboard);
     this.#generator = new SudokuGenerator({ sudokuboard: this.#sudokuboard });
@@ -38,6 +43,7 @@ export default class SudokuRenderer {
       fontSize: 20,
       boxGap: 5,
     };
+
     this.#boardSizes = {
       padding: 30,
       width:
@@ -50,8 +56,6 @@ export default class SudokuRenderer {
         2 * this.#tileSizes.padding,
     };
 
-    //add some example puzzles here
-    //source: https://www.sudokuonline.io/
     this.#examples = {
       Reset: [
         [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -131,22 +135,21 @@ export default class SudokuRenderer {
         [0, 8, 0, 0, 0, 2, 0, 6, 0],
       ],
     };
-    //rendering the table
+
     this.#render();
   }
 
-  get examples() {
+  get examples(): Examples {
     return this.#examples;
   }
 
-  /* getting all values from the UI inputs
-    return: a 2D array what is given by the user */
-  extractInputs() {
-    this.#sudokuboard.setBoard(this.#sudokuboard.cells.map(cell => +cell.ref.value));
+  extractInputs(): void {
+    this.#sudokuboard.setBoard(
+      this.#sudokuboard.cells.map((cell: unknown) => +(cell as { ref: HTMLInputElement }).ref.value)
+    );
   }
 
-  /* solving the board SudokuBoard */
-  solve() {
+  solve(): void {
     const solution = this.#solver.solvePuzzle();
     if (solution) {
       this.#sudokuboard.setBoard(solution, false);
@@ -155,28 +158,24 @@ export default class SudokuRenderer {
     }
   }
 
-  /**************************/
-  /* UI inputs manipulation */
-  /**************************/
-
-  /* updateing the UI with a puzzle or solution
-    arg:    puzzle n x n sized 2D array
-    return: a boolean true means the column doesn't has duplicates */
-  updateUICells() {
-    this.#sudokuboard.cells.forEach(cell => (cell.ref.value = +cell.value || ''));
-
+  updateUICells(): void {
+    this.#sudokuboard.cells.forEach((cell: unknown) => {
+      const c = cell as { ref: HTMLInputElement; value: number };
+      c.ref.value = c.value ? String(c.value) : '';
+    });
     this.upadateCells();
   }
 
-  /* the method updating the SudokuBoard according to the UI input value
-      arg:    e Event,
-      return: undefined */
-  updateUICell(e) {
+  updateUICell(e: Event): void {
     e.preventDefault();
+    const target = e.target as HTMLInputElement;
+    const x = +target.dataset.col!;
+    const y = +target.dataset.row!;
+    const value = +target.value;
 
-    const [x, y, value] = [+e.target.dataset.col, +e.target.dataset.row, +e.target.value];
-    const cell = this.#sudokuboard.getCell(x, y);
+    const cell = this.#sudokuboard.getCell({ x, y });
     const { min, max, unfilled } = cell.accepted;
+
     try {
       this.#sudokuboard.setCellValue({ x, y }, value || unfilled);
     } catch {
@@ -185,71 +184,74 @@ export default class SudokuRenderer {
         delay: 2000,
       });
     }
-    e.target.value = cell.value !== unfilled ? cell.value : '';
 
+    target.value = cell.value !== unfilled ? String(cell.value) : '';
     this.upadateCells();
   }
 
-  /* all the issued cells gets the issued class and style */
-  upadateCells() {
-    this.#sudokuboard.cells.forEach(cell => this.#setCellStyle(cell));
+  upadateCells(): void {
+    this.#sudokuboard.cells.forEach((cell: unknown) =>
+      this.#setCellStyle(cell as { issued: boolean; given: boolean; ref: HTMLInputElement })
+    );
   }
 
-  /* setting the HTML element classes end style of the cell HTML element
-  arg:      cell (object)
-  return:   undefined */
-  #setCellStyle(cell) {
-    cell.issued ? cell.ref.classList.add('issue') : cell.ref.classList.remove('issue');
-    cell.given ? cell.ref.classList.add('given') : cell.ref.classList.remove('given');
+  #setCellStyle(cell: { issued: boolean; given: boolean; ref: HTMLInputElement }): void {
+    if (cell.issued) {
+      cell.ref.classList.add('issue');
+    } else {
+      cell.ref.classList.remove('issue');
+    }
+
+    if (cell.given) {
+      cell.ref.classList.add('given');
+    } else {
+      cell.ref.classList.remove('given');
+    }
+
     cell.ref.disabled = cell.given;
   }
 
-  /****************/
-  /* non-React UI */
-  /****************/
-
-  /* throw a message
-   * first argument is the text,
-   * the second object has one properties:
-   ** alert, gives allert as well, and
-   ** the type of the print to console. */
-  #userMsg(text, type = 'none') {
+  #userMsg(text: string, type: 'none' | 'log' | 'error' = 'none'): void {
     this.#errors.innerHTML = text;
-    const alerting = {
+
+    const alerting: Record<string, () => void> = {
       alert: () => alert(text),
-      log: () => console[type](text),
-      error: () => console[type](text),
+      log: () => console.log(text),
+      error: () => console.error(text),
       none: () => null,
     };
+
     alerting[type]();
   }
 
-  /* throw a message
-   * first argument is the text,
-   * the second object has one properties:
-   ** alert, gives allert as well, and
-   ** the type of the print to console. */
   #userMsgTemporary(
-    { text, prevMsg, delay, type } = {
+    {
+      text = '',
+      prevMsg,
+      delay = 1500,
+      type = 'none',
+    }: {
+      text?: string;
+      prevMsg?: string;
+      delay?: number;
+      type?: 'none' | 'log' | 'error';
+    } = {
       delay: 1500,
       type: 'none',
     }
-  ) {
+  ): void {
     if (this.userMessageTimeout) {
       clearTimeout(this.userMessageTimeout);
-    } else if (!prevMsg) this.prevMsg = this.#errors.innerHTML;
+    } else if (!prevMsg) {
+      this.prevMsg = this.#errors.innerHTML;
+    }
     this.#userMsg(text);
     this.userMessageTimeout = setTimeout(() => this.#userMsg(this.prevMsg, type), delay);
   }
 
-  /* rendering the entire table from the SudokuBoard */
-  #render() {
-    // if it is once rendered then should be saved to the class
-
-    /* main div */
+  #render(): void {
     this.app = document.getElementById('app');
 
-    //HTML element of the board
     this.#board = this.#createContainer('board', this.app);
     this.#addSizes(this.#board, this.#boardSizes);
 
@@ -262,7 +264,6 @@ export default class SudokuRenderer {
     this.#sudokuboard.getAllRows().forEach(row => this.#renderRow(row));
 
     this.#renderExamples();
-
     this.#sudokuGeneratorBoard();
 
     this.#renderButton(
@@ -279,25 +280,27 @@ export default class SudokuRenderer {
     this.#renderNumbers();
   }
 
-  #createContainer(id, parent) {
+  #createContainer(id: string, parent: HTMLElement | null): HTMLElement {
     const element = document.createElement('div');
     element.id = id;
-    parent.appendChild(element);
+    if (parent) {
+      parent.appendChild(element);
+    }
     return element;
   }
 
-  /* rendering the inputs */
-  #renderNumbers() {
+  #renderNumbers(): void {
     for (let num = 1; num <= this.#boxSizeX * this.#boxSizeY; num++) {
       const numButton = document.createElement('button');
       this.#numbers.appendChild(numButton);
 
-      numButton.textContent = num;
+      numButton.textContent = String(num);
       numButton.classList.add('num');
 
-      numButton.addEventListener('click', e => {
+      numButton.addEventListener('click', () => {
         if (this.#selectedCell) {
-          this.#selectedCell.ref.value = num;
+          const selectedCell = this.#selectedCell as { ref: HTMLInputElement };
+          selectedCell.ref.value = String(num);
           this.#sudokuboard.setCellValue({ cell: this.#selectedCell }, num);
           this.updateUICells();
         }
@@ -305,71 +308,89 @@ export default class SudokuRenderer {
     }
   }
 
-  /* rendering the rows, the only div and iterating throught the cells of each
-      arg:    Batch (object)
-      return: undefined */
-  #renderRow(row) {
+  #renderRow(row: { id: number; cells: unknown[] }): void {
     const rowContainer = document.createElement('div');
-    rowContainer.classList.add(`row`);
+    rowContainer.classList.add('row');
     rowContainer.classList.add(`nr-${row.id}`);
     this.#board.appendChild(rowContainer);
+
     row.cells.forEach(cellInfo => {
-      this.#createInput(cellInfo, rowContainer);
+      this.#createInput(
+        cellInfo as {
+          accepted: { min: number; max: number };
+          id: string;
+          x: number;
+          y: number;
+          boxId: number;
+          addRef: (el: HTMLInputElement) => void;
+        },
+        rowContainer
+      );
     });
   }
 
-  #addSizes(dom, styles) {
-    return Object.entries(styles).forEach(([key, value]) => (dom.style[key] = `${value}px`));
+  #addSizes(dom: HTMLElement, styles: Record<string, number>): void {
+    Object.entries(styles).forEach(([key, value]) => {
+      dom.style.setProperty(key, `${value}px`);
+    });
   }
 
-  /* generating the DOM of a cell input, the arguments are the following:
-      arg:    cellInfo Cell (object)
-              parent: the DOM element who is the parent of the input (cell)
-      return: undefined */
-  #createInput(cellInfo, parent) {
+  #createInput(
+    cellInfo: {
+      accepted: { min: number; max: number };
+      id: string;
+      x: number;
+      y: number;
+      boxId: number;
+      addRef: (el: HTMLInputElement) => void;
+    },
+    parent: HTMLElement
+  ): void {
     const cellDOM = document.createElement('input');
     cellDOM.type = 'number';
-    cellDOM.step = 1;
-    cellDOM.min = cellInfo.accepted.min;
-    cellDOM.max = cellInfo.accepted.max;
+    cellDOM.step = '1';
+    cellDOM.min = String(cellInfo.accepted.min);
+    cellDOM.max = String(cellInfo.accepted.max);
     cellDOM.id = cellInfo.id;
     cellDOM.classList.add('tile');
     this.#addSizes(cellDOM, this.#tileSizes);
-    cellDOM.dataset.row = cellInfo.y;
-    cellDOM.dataset.col = cellInfo.x;
-    cellDOM.dataset.box = cellInfo.boxId;
+    cellDOM.dataset.row = String(cellInfo.y);
+    cellDOM.dataset.col = String(cellInfo.x);
+    cellDOM.dataset.box = String(cellInfo.boxId);
+
     if ((cellInfo.x + 1) % this.#boxSizeX === 0 && cellInfo.x + 1 !== this.#boxSizeX ** 2) {
       cellDOM.style.marginRight = `${this.#tileSizes.boxGap}px`;
     }
+
     if ((cellInfo.y + 1) % this.#boxSizeY === 0 && cellInfo.x + 1 !== this.#boxSizeY ** 2) {
       cellDOM.style.marginBottom = `${this.#tileSizes.boxGap}px`;
     }
-    cellDOM.addEventListener('click', e => {
-      this.#sudokuboard.cells.forEach(cell => {
-        cell.ref.classList.remove('selected');
+
+    cellDOM.addEventListener('click', () => {
+      this.#sudokuboard.cells.forEach((cell: unknown) => {
+        (cell as { ref: HTMLInputElement }).ref.classList.remove('selected');
       });
       cellDOM.classList.add('selected');
       this.#selectedCell = cellInfo;
     });
+
     cellDOM.addEventListener('change', e => this.updateUICell(e));
     parent.appendChild(cellDOM);
     cellInfo.addRef(cellDOM);
   }
 
-  #sudokuGeneratorBoard() {
-    Object.keys(this.#generator.levels).map(level => {
+  #sudokuGeneratorBoard(): void {
+    Object.keys(this.#generator.levels).forEach(level => {
       this.#renderButton(
         'Generate a random ' + level + ' level',
         () => {
-          const { puzzle, generationTime } = this.#generator.generatePuzzle({
-            level,
+          const result = this.#generator.generatePuzzle({
+            level: level as 'easy' | 'medium' | 'hard' | 'evil',
           });
-          this.#sudokuboard.setBoard(puzzle, true);
+          this.#sudokuboard.setBoard(result.puzzle, true);
           this.updateUICells();
           this.#userMsgTemporary({
-            text: `Generated a ${level} level puzzle! That tooked only ${
-              Math.round(generationTime / 100) / 10
-            } seconds!`,
+            text: `Generated a ${level} level puzzle! That tooked only ${Math.round(result.generationTime / 100) / 10} seconds!`,
             delay: 2000,
           });
         },
@@ -378,8 +399,8 @@ export default class SudokuRenderer {
     });
   }
 
-  #renderExamples() {
-    for (let puzzle in this.examples) {
+  #renderExamples(): void {
+    for (const puzzle in this.examples) {
       this.#renderButton(
         puzzle + ' example',
         () => {
@@ -395,10 +416,7 @@ export default class SudokuRenderer {
     }
   }
 
-  /* buttons for the contorl panel, the arguments are the following:
-    text  -> text of the button
-    cb -> the callback function what is fired when the button is clicked */
-  #renderButton(text, cb, parent) {
+  #renderButton(text: string, cb: () => void, parent: HTMLElement): void {
     const button = document.createElement('button');
     button.innerText = text;
     button.addEventListener('click', () => {
