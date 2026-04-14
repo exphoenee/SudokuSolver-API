@@ -1,25 +1,18 @@
 import express, { type Application, type Request, type Response } from 'express';
 import swaggerUi from 'swagger-ui-express';
-import SudokuSolver from './solver/SudokuSolver.js';
-import SudokuBoard from './core/SudokuBoard/SudokuBoard.js';
-import SudokuGenerator from './generator/SudokuGenerator.js';
-import { config } from './config/index.js';
+import rateLimit from 'express-rate-limit';
 import {
   validateSolveRequest,
   validateGenerateRequest,
   type SolveRequest,
   type GenerateRequest,
 } from './utils/validation.js';
-import {
-  successResponse,
-  errorResponse,
-  formatSolveResponse,
-  formatGenerateResponse,
-} from './utils/response.js';
-import { SudokuError, ValidationError } from './utils/errors.js';
+import { successResponse, formatSolveResponse, formatGenerateResponse } from './utils/response.js';
 import { swaggerSpec } from './docs/swagger.js';
 import { cache } from './utils/cache.js';
-import { version } from './utils/version.js';
+import { handleRoute } from './utils/handleRoute.js';
+import { sudokuService } from './services/SudokuService.js';
+import { getHomeHtml } from './services/HtmlService.js';
 
 /**
  * Creates and configures the Express application.
@@ -30,73 +23,38 @@ export function createApp(): Application {
   app.use(express.json());
   app.use(cache.middleware({ ttl: 60000, enabled: true }));
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const versionStr = version;
+  const limiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+      success: false,
+      error: { message: 'Too many requests', code: 'RATE_LIMIT_EXCEEDED' },
+    },
+  });
+  app.use(limiter);
 
   app.get('/', (_req: Request, res: Response) => {
-    res.type('html').send(`
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sudoku Solver API</title>
-  <style>
-    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; background: #f5f5f5; }
-    h1 { color: #333; border-bottom: 2px solid #007acc; padding-bottom: 10px; }
-    .endpoint { background: white; border-radius: 8px; padding: 15px; margin: 15px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .method { display: inline-block; padding: 4px 12px; border-radius: 4px; font-weight: bold; margin-right: 10px; }
-    .get { background: #61affe; color: white; }
-    .post { background: #49cc90; color: white; }
-    .path { font-family: monospace; font-size: 1.1em; color: #333; }
-    .description { color: #666; margin-top: 8px; }
-    code { background: #eee; padding: 2px 6px; border-radius: 3px; }
-    pre { background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 6px; overflow-x: auto; white-space: pre-wrap; }
-    .docs-link { background: #ff6b6b; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; display: inline-block; margin-top: 20px; font-weight: bold; }
-    .docs-link:hover { background: #ee5a5a; }
-  </style>
-</head>
-<body>
-  <h1>Sudoku Solver API</h1>
-  <p><strong>Version:</strong> {versionStr}</p>
-
-  <div class="endpoint">
-    <span class="method post">POST</span>
-    <span class="path">/solve</span>
-    <p class="description">Solve a Sudoku puzzle</p>
-    <pre>body: { puzzle: string, format?: "string" | "1D" | "2D", unfilledChar?: string }</pre>
-    <p class="description"><strong>Example puzzle (string format):</strong></p>
-    <pre>{
-  "puzzle": "1,5,7,0,0,0,3,0,0,9,0,6,0,0,0,8,2,0,0,4,0,0,3,0,0,5,2,0,0,0,9,
-             0,0,0,0,0,3,0,9,0,0,0,0,1,5,0,0,0,0,0,5,0,0,0,9,0,0,0,
-             0,1,2,0,0,0,4,7,0,2,0,0,0,6,5,0,1,0,0,5,0,8,1,0,0,0,7,0,2,6,0,0,0,7",
-  "unfilledChar": "0",
-  "format": "string"
-}</pre>
-  </div>
-
-  <div class="endpoint">
-    <span class="method get">GET</span>
-    <span class="path">/generate/:level</span>
-    <p class="description">Generate a random puzzle</p>
-    <p><strong>Levels:</strong> <code>easy</code> | <code>medium</code> | <code>hard</code> | <code>evil</code></p>
-  </div>
-
-  <div class="endpoint">
-    <span class="method get">GET</span>
-    <span class="path">/health</span>
-    <p class="description">Health check endpoint</p>
-  </div>
-
-  <a href="/api-docs" class="docs-link">Open API Documentation</a>
-</body>
-</html>`);
+    res.type('html').send(getHomeHtml());
   });
 
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
   app.get('/health', (_req: Request, res: Response) => {
-    res.json(successResponse({ status: 'healthy', version: versionStr }));
+    const usage = process.memoryUsage();
+    res.json(
+      successResponse({
+        status: 'healthy',
+        uptime: Math.round(process.uptime()),
+        memory: {
+          rss: Math.round(usage.rss / 1024 / 1024),
+          heapTotal: Math.round(usage.heapTotal / 1024 / 1024),
+          heapUsed: Math.round(usage.heapUsed / 1024 / 1024),
+          external: Math.round(usage.external / 1024 / 1024),
+        },
+      })
+    );
   });
 
   app.get('/cache', (_req: Request, res: Response) => {
@@ -109,70 +67,36 @@ export function createApp(): Application {
   });
 
   app.post('/solve', (req: Request, res: Response) => {
-    const startTime = Date.now();
-
-    try {
-      const body = validateSolveRequest(req.body) as SolveRequest;
-      const { puzzle, format = 'string', unfilledChar = '.' } = body;
-
-      const board = new SudokuBoard(
-        config.get<number>('board.defaultBoxSizeX') ?? 3,
-        config.get<number>('board.defaultBoxSizeY') ?? 3
-      );
-
-      const solver = new SudokuSolver(board);
-
-      const solution = solver.solvePuzzle({
-        puzzle,
-        format,
-        unfilledChar,
-      });
-
-      if (!solution) {
-        throw new SudokuError('Puzzle has no solution', 'NO_SOLUTION');
-      }
-
-      const duration = Date.now() - startTime;
-      res.json(formatSolveResponse(solution, { durationMs: duration }));
-    } catch (err) {
-      const duration = Date.now() - startTime;
-      const statusCode = err instanceof ValidationError ? 400 : 500;
-      const error =
-        err instanceof SudokuError
-          ? err
-          : new SudokuError((err as Error).message, 'INTERNAL_ERROR');
-
-      res.status(statusCode).json(errorResponse(error, { durationMs: duration }));
-    }
+    const body = validateSolveRequest(req.body) as SolveRequest;
+    handleRoute(
+      req,
+      res,
+      () => sudokuService.solve(body),
+      (result, duration) =>
+        formatSolveResponse((result as { solution: string }).solution, { durationMs: duration })
+    );
   });
 
   app.get('/generate/:level', (req: Request, res: Response) => {
-    const startTime = Date.now();
+    const params = validateGenerateRequest(req.params) as GenerateRequest;
+    handleRoute(
+      req,
+      res,
+      () => sudokuService.generate(params.level as 'easy' | 'medium' | 'hard' | 'evil'),
+      (result, duration) => formatGenerateResponse(result as object, { durationMs: duration })
+    );
+  });
 
-    try {
-      const params = validateGenerateRequest(req.params) as GenerateRequest;
-      const level = params.level;
+  app.use((_req: Request, res: Response) => {
+    res.status(404).json({ success: false, error: { message: 'Not found', code: 'NOT_FOUND' } });
+  });
 
-      const board = new SudokuBoard(
-        config.get<number>('board.defaultBoxSizeX') ?? 3,
-        config.get<number>('board.defaultBoxSizeY') ?? 3
-      );
-      const generator = new SudokuGenerator({ sudokuboard: board });
-
-      const results = generator.generatePuzzle({ level });
-      const duration = Date.now() - startTime;
-
-      res.json(formatGenerateResponse(results, { durationMs: duration }));
-    } catch (err) {
-      const duration = Date.now() - startTime;
-      const statusCode = err instanceof ValidationError ? 400 : 500;
-      const error =
-        err instanceof SudokuError
-          ? err
-          : new SudokuError((err as Error).message, 'INTERNAL_ERROR');
-
-      res.status(statusCode).json(errorResponse(error, { durationMs: duration }));
-    }
+  app.use((err: Error, _req: Request, res: Response, _next: unknown) => {
+    console.error('Unhandled error:', err.message);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Internal server error', code: 'INTERNAL_ERROR' },
+    });
   });
 
   return app;
