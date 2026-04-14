@@ -1,6 +1,6 @@
 {
   "name": "sudokusolver-api",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Sudoku Solver REST API with puzzle generation",
   "main": "dist/index.js",
   "type": "module",

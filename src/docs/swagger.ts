@@ -1,5 +1,6 @@
 import swaggerJsdoc from 'swagger-jsdoc';
 import { config } from '../config/index.js';
+import { version } from '../utils/version.js';
 
 const baseUrl = config.get<string>('api.baseUrl') || 'http://localhost:3005';
 
@@ -8,7 +9,7 @@ const options: swaggerJsdoc.Options = {
     openapi: '3.0.0',
     info: {
       title: 'Sudoku Solver API',
-      version: '3.0.0',
+      version,
       description: 'REST API for solving and generating Sudoku puzzles',
       contact: {
         name: 'API Support',

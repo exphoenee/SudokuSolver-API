@@ -19,6 +19,7 @@ import {
 import { SudokuError, ValidationError } from './utils/errors.js';
 import { swaggerSpec } from './docs/swagger.js';
 import { cache } from './utils/cache.js';
+import { version } from './utils/version.js';
 
 /**
  * Creates and configures the Express application.
@@ -28,6 +29,9 @@ export function createApp(): Application {
   const app = express();
   app.use(express.json());
   app.use(cache.middleware({ ttl: 60000, enabled: true }));
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const versionStr = version;
 
   app.get('/', (_req: Request, res: Response) => {
     res.type('html').send(`
@@ -47,20 +51,28 @@ export function createApp(): Application {
     .path { font-family: monospace; font-size: 1.1em; color: #333; }
     .description { color: #666; margin-top: 8px; }
     code { background: #eee; padding: 2px 6px; border-radius: 3px; }
-    pre { background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 6px; overflow-x: auto; }
+    pre { background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 6px; overflow-x: auto; white-space: pre-wrap; }
     .docs-link { background: #ff6b6b; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; display: inline-block; margin-top: 20px; font-weight: bold; }
     .docs-link:hover { background: #ee5a5a; }
   </style>
 </head>
 <body>
   <h1>Sudoku Solver API</h1>
-  <p><strong>Version:</strong> 3.0.0</p>
+  <p><strong>Version:</strong> {versionStr}</p>
 
   <div class="endpoint">
     <span class="method post">POST</span>
     <span class="path">/solve</span>
     <p class="description">Solve a Sudoku puzzle</p>
-    <pre>body: { puzzle: string, format?: "string" | "1D" | "2D" }</pre>
+    <pre>body: { puzzle: string, format?: "string" | "1D" | "2D", unfilledChar?: string }</pre>
+    <p class="description"><strong>Example puzzle (string format):</strong></p>
+    <pre>{
+  "puzzle": "1,5,7,0,0,0,3,0,0,9,0,6,0,0,0,8,2,0,0,4,0,0,3,0,0,5,2,0,0,0,9,
+             0,0,0,0,0,3,0,9,0,0,0,0,1,5,0,0,0,0,0,5,0,0,0,9,0,0,0,
+             0,1,2,0,0,0,4,7,0,2,0,0,0,6,5,0,1,0,0,5,0,8,1,0,0,0,7,0,2,6,0,0,0,7",
+  "unfilledChar": "0",
+  "format": "string"
+}</pre>
   </div>
 
   <div class="endpoint">
@@ -84,7 +96,7 @@ export function createApp(): Application {
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
   app.get('/health', (_req: Request, res: Response) => {
-    res.json(successResponse({ status: 'healthy' }));
+    res.json(successResponse({ status: 'healthy', version: versionStr }));
   });
 
   app.get('/cache', (_req: Request, res: Response) => {
