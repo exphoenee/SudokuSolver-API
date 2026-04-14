@@ -1,6 +1,9 @@
 import express, { type Application, type Request, type Response } from 'express';
+import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import rateLimit from 'express-rate-limit';
+import { logger } from './utils/logger.js';
+import { config } from './config/index.js';
 import {
   validateSolveRequest,
   validateGenerateRequest,
@@ -21,6 +24,7 @@ import { getHomeHtml } from './services/HtmlService.js';
 export function createApp(): Application {
   const app = express();
   app.use(express.json());
+  app.use(cors({ origin: config.get<string>('api.corsOrigin') }));
   app.use(cache.middleware({ ttl: 60000, enabled: true }));
 
   const limiter = rateLimit({
@@ -33,6 +37,12 @@ export function createApp(): Application {
       error: { message: 'Too many requests', code: 'RATE_LIMIT_EXCEEDED' },
     },
   });
+
+  app.use((req: Request, _res: Response, next) => {
+    logger.info({ method: req.method, url: req.url }, 'Request');
+    next();
+  });
+
   app.use(limiter);
 
   app.get('/', (_req: Request, res: Response) => {
@@ -92,7 +102,7 @@ export function createApp(): Application {
   });
 
   app.use((err: Error, _req: Request, res: Response, _next: unknown) => {
-    console.error('Unhandled error:', err.message);
+    logger.error({ err }, 'Unhandled error');
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'INTERNAL_ERROR' },

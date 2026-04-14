@@ -22,6 +22,7 @@ interface DefaultConfig {
     port: number;
     host: string;
     baseUrl: string;
+    corsOrigin: string;
   };
 }
 
@@ -46,7 +47,8 @@ const defaultConfig: DefaultConfig = {
   api: {
     port: Number(process.env.PORT) || 3000,
     host: process.env.HOST || '0.0.0.0',
-    baseUrl: process.env.API_BASE_URL || 'http://localhost:3005',
+    baseUrl: process.env.API_BASE_URL || `http://localhost:${process.env.PORT || 3000}`,
+    corsOrigin: process.env.CORS_ORIGIN || '*',
   },
 };
 

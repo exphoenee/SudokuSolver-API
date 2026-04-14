@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import { SudokuError, ValidationError } from './errors.js';
 import { errorResponse } from './response.js';
+import { logger } from './logger.js';
 
 interface RouteResult {
   durationMs?: number;
@@ -28,6 +29,7 @@ export function handleRoute(
     const statusCode = err instanceof ValidationError ? 400 : 500;
     const error =
       err instanceof SudokuError ? err : new SudokuError((err as Error).message, 'INTERNAL_ERROR');
+    logger.error({ err, statusCode }, 'Route error');
     res.status(statusCode).json(errorResponse(error, { durationMs: duration }));
   }
 }

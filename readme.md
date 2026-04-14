@@ -3,7 +3,35 @@
 REST API for solving and generating Sudoku puzzles using a backtracking algorithm.
 Built with Node.js, Express.js, and TypeScript.
 
-Live demo: [https://sudoku-solver-api.fly.dev/](https://sudoku-solver-api.fly.dev/)
+**Live demo:** [https://sudoku-solver-api.fly.dev/](https://sudoku-solver-api.fly.dev/)
+
+## Architecture
+
+```
+src/
+├── app.ts                 # Express app + routing
+├── index.ts              # Entry point + graceful shutdown
+├── services/
+│   ├── SudokuService.ts  # solve/generate logic
+│   └── HtmlService.ts  # home HTML template
+├── utils/
+│   ├── handleRoute.ts   # try/catch + timing helper
+│   ├── validation.ts  # request validation (Zod)
+│   ├── errors.ts     # custom error classes
+│   └── ...
+└── core/               # Sudoku board, solver, generator
+```
+
+### Features Implemented
+
+| Feature           | Implementation                              |
+| ----------------- | ------------------------------------------- |
+| Service Layer     | `src/services/SudokuService.ts`             |
+| Error Middleware  | Centralized error handling                  |
+| Rate Limiting     | 100 requests/minute/IP (express-rate-limit) |
+| Health Check      | uptime + memory usage                       |
+| Graceful Shutdown | SIGTERM/SIGINT handling                     |
+| Version Dynamic   | package.json version auto-read              |
 
 ## Quick Start
 
@@ -88,16 +116,28 @@ Generate a random puzzle.
 
 ### GET /health
 
-Returns service health status.
+Returns service health status with uptime and memory usage.
 
 ```json
 {
   "success": true,
-  "data": { "status": "healthy" },
-  "error": null,
-  "meta": { "timestamp": "..." }
+  "data": {
+    "status": "healthy",
+    "uptime": 3600,
+    "memory": {
+      "rss": 45,
+      "heapTotal": 22,
+      "heapUsed": 18,
+      "external": 2
+    }
+  }
 }
 ```
+
+### Rate Limiting
+
+- **Limit:** 100 requests per minute per IP
+- **Response on limit:** `429 Too Many Requests` with `RATE_LIMIT_EXCEEDED` error
 
 ## Swagger Documentation
 
@@ -126,6 +166,29 @@ Interactive API explorer with request builder and response examples.
 | Generate hard puzzle   | 736ms   | 535ms  | 1271ms  |
 | Create empty board     | 2.49ms  | 1.45ms | 55ms    |
 | Solve + format output  | 2.89ms  | 1.07ms | 142ms   |
+
+## Graceful Shutdown
+
+The server handles `SIGTERM` and `SIGINT` signals for clean shutdown:
+
+1. Stops accepting new connections
+2. Waits for in-flight requests to complete (max 10s)
+3. Closes server and exits
+
+```bash
+# Deploy triggers SIGTERM on Fly.io
+fly deploy
+```
+
+## Environment Variables
+
+| Variable       | Description          | Default                 |
+| -------------- | -------------------- | ----------------------- |
+| `PORT`         | Server port          | `3000`                  |
+| `HOST`         | Server host          | `0.0.0.0`               |
+| `API_BASE_URL` | Public API URL       | `http://localhost:PORT` |
+| `CORS_ORIGIN`  | Allowed CORS origins | `*`                     |
+| `LOG_LEVEL`    | Pino log level       | `info`                  |
 
 ## Docker
 

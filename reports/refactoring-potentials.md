@@ -1,7 +1,7 @@
 # SudokuSolver-API Refactoring Report
 
-**Date:** 2026-04-13
-**Status:** Phase 3 Complete (TypeScript Migration)
+**Date:** 2026-04-14
+**Status:** Production Ready
 
 ---
 
@@ -374,12 +374,79 @@ src/
 
 ---
 
-## 10. Recommendations
+## 10. Production Features (Phase 4) ✅ COMPLETED
 
-1. **Immediate:** Fix naming conventions and remove dead code
-2. **Short-term:** Add structured error handling and configuration
-3. **Long-term:** Consider TypeScript migration for better maintainability
-4. **Ongoing:** Increase test coverage, especially edge cases
+**Date:** 2026-04-14
+
+**Changes made:**
+
+1. **Service Layer** (`src/services/SudokuService.ts`):
+   - Extracted solver/generator logic into dedicated service class
+   - Consistent input/output handling
+   - Format conversion (string/1D/2D)
+
+2. **Error Middleware** (`src/app.ts`):
+   - 404 handler for unknown routes
+   - Centralized error handler with logging
+   - Consistent error response format
+
+3. **Rate Limiting** (`express-rate-limit`):
+   - 100 requests per minute per IP
+   - Returns 429 with `RATE_LIMIT_EXCEEDED`
+
+4. **Health Check Extended** (`src/app.ts`):
+   - Process uptime (seconds)
+   - Memory usage (RSS, heapTotal, heapUsed, external) in MB
+
+5. **Graceful Shutdown** (`src/index.ts`):
+   - SIGTERM/SIGINT signal handling
+   - 10-second timeout for in-flight requests
+   - Clean server close
+
+6. **Version Dynamic** (`src/utils/version.ts`):
+   - Auto-reads from package.json
+   - Used in health check and home HTML
+
+---
+
+## 11. Production Features (Phase 5) ✅ COMPLETED
+
+**Date:** 2026-04-14
+
+**Changes made:**
+
+1. **Request Logging** (`src/utils/logger.ts`):
+   - Pino logger for structured logging
+   - Logs every request (method, URL)
+   - Logs route and unhandled errors
+
+2. **Explicit CORS** (`src/app.ts`):
+   - `cors` middleware with configurable origin
+   - `CORS_ORIGIN` env variable
+   - Production restricted to Fly.io URL
+   - Local allows all origins
+
+3. **Dynamic Config** (`src/config/index.ts`):
+   - `API_BASE_URL` - auto-uses PORT from env
+   - `CORS_ORIGIN` - configurable per environment
+   - `LOG_LEVEL` - pino log level
+
+4. **Environment Variables:**
+   | Variable | Default |
+   | -------- | ------- |
+   | `PORT` | 3000 |
+   | `HOST` | 0.0.0.0 |
+   | `API_BASE_URL` | http://localhost:PORT |
+   | `CORS_ORIGIN` | \* |
+   | `LOG_LEVEL` | info |
+
+---
+
+## 12. Recommendations
+
+1. **Testing:** Increase test coverage
+2. **Performance:** Add response compression
+3. **Security:** Add Helmet middleware
 
 ---
 

@@ -9,6 +9,7 @@ processes = []
 [env]
   PORT = "3005"
   API_BASE_URL = "https://sudoku-solver-api.fly.dev"
+  CORS_ORIGIN = "https://sudoku-solver-api.fly.dev"
 
 [experimental]
   auto_rollback = true
