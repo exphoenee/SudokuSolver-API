@@ -1,4 +1,7 @@
 import swaggerJsdoc from 'swagger-jsdoc';
+import { config } from '../config/index.js';
+
+const baseUrl = config.get<string>('api.baseUrl') || 'http://localhost:3005';
 
 const options: swaggerJsdoc.Options = {
   definition: {
@@ -13,12 +16,8 @@ const options: swaggerJsdoc.Options = {
     },
     servers: [
       {
-        url: 'http://localhost:3005',
-        description: 'Local development server',
-      },
-      {
-        url: 'https://sudoku-solver-api.fly.dev',
-        description: 'Production server',
+        url: baseUrl,
+        description: 'API Server',
       },
     ],
     tags: [
