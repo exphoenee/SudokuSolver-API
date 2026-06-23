@@ -9,17 +9,32 @@ Built with Node.js, Express.js, and TypeScript.
 
 ```
 src/
-├── app.ts                 # Express app + routing
-├── index.ts              # Entry point + graceful shutdown
+├── app.ts                    # Express app + routing
+├── index.ts                  # Entry point + graceful shutdown
+├── types.ts                  # Shared type definitions
+├── config/                   # App configuration
+├── core/
+│   ├── services/             # Core business logic services
+│   └── SudokuBoard/          # Sudoku board representation
+├── solver/
+│   └── SudokuSolver.ts       # Backtracking solver
+├── generator/
+│   └── SudokuGenerator.ts    # Puzzle generation
+├── renderer/
+│   └── SudokuRenderer.ts     # Board rendering
 ├── services/
-│   ├── SudokuService.ts  # solve/generate logic
-│   └── HtmlService.ts  # home HTML template
-├── utils/
-│   ├── handleRoute.ts   # try/catch + timing helper
-│   ├── validation.ts  # request validation (Zod)
-│   ├── errors.ts     # custom error classes
-│   └── ...
-└── core/               # Sudoku board, solver, generator
+│   ├── SudokuService.ts      # solve/generate logic
+│   └── HtmlService.ts        # Home HTML template
+├── docs/                     # Swagger/OpenAPI docs
+└── utils/
+    ├── cache.ts              # Caching utility
+    ├── errors.ts             # Custom error classes
+    ├── handleRoute.ts        # try/catch + timing helper
+    ├── logger.ts             # Pino logger setup
+    ├── response.ts           # Response formatting
+    ├── validation.ts         # Request validation (Zod)
+    ├── version.ts            # Version from package.json
+    └── zod.ts                # Zod schema helpers
 ```
 
 ### Features Implemented
@@ -32,6 +47,7 @@ src/
 | Health Check      | uptime + memory usage                       |
 | Graceful Shutdown | SIGTERM/SIGINT handling                     |
 | Version Dynamic   | package.json version auto-read              |
+| Caching           | In-memory cache for generated puzzles       |
 
 ## Quick Start
 
@@ -153,7 +169,11 @@ Interactive API explorer with request builder and response examples.
 | `npm run build`     | Build TypeScript                   |
 | `npm start`         | Run production server              |
 | `npm test`          | Run tests                          |
+| `npm run test:coverage` | Run tests with coverage        |
 | `npm run benchmark` | Run performance benchmarks         |
+| `npm run lint`      | Run ESLint                         |
+| `npm run lint:fix`  | Auto-fix ESLint issues             |
+| `npm run format`    | Format with Prettier               |
 
 ## Performance Benchmarks
 
