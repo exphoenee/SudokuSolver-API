@@ -25,7 +25,9 @@ import { getHomeHtml } from './services/HtmlService.js';
 export function createApp(): Application {
   const app = express();
   app.use(express.json());
-  app.use(cors({ origin: config.get<string>('api.corsOrigin') }));
+  const corsOrigin = config.get<string>('api.corsOrigin') ?? '*';
+  const corsOrigins = corsOrigin.split(',').map(origin => origin.trim()).filter(Boolean);
+  app.use(cors({ origin: corsOrigins.length > 1 ? corsOrigins : corsOrigins[0] }));
   app.use(cache.middleware({ ttl: 60000, enabled: true }));
 
   const limiter = rateLimit({
