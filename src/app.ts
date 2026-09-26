@@ -1,3 +1,4 @@
+import path from 'path';
 import express, { type Application, type Request, type Response } from 'express';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
@@ -44,6 +45,8 @@ export function createApp(): Application {
   });
 
   app.use(limiter);
+
+  app.use(express.static(path.join(process.cwd(), 'public')));
 
   app.get('/', (_req: Request, res: Response) => {
     res.type('html').send(getHomeHtml());
