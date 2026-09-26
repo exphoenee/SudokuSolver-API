@@ -207,7 +207,7 @@ fly deploy
 | `PORT`         | Server port          | `3000`                  |
 | `HOST`         | Server host          | `0.0.0.0`               |
 | `API_BASE_URL` | Public API URL       | `http://localhost:PORT` |
-| `CORS_ORIGIN`  | Allowed CORS origins | `*`                     |
+| `CORS_ORIGIN`  | Allowed CORS origin(s), comma-separated for multiple | `*` |
 | `LOG_LEVEL`    | Pino log level       | `info`                  |
 
 ## Docker
