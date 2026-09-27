@@ -3,7 +3,10 @@
 REST API for solving and generating Sudoku puzzles using a backtracking algorithm.
 Built with Node.js, Express.js, and TypeScript.
 
-**Live demo:** [https://sudoku-solver-api.fly.dev/](https://sudoku-solver-api.fly.dev/)
+**Repository:** [github.com/exphoenee/SudokuSolver-API](https://github.com/exphoenee/SudokuSolver-API)
+**Live demo:** [sudoku-solver-api.fly.dev](https://sudoku-solver-api.fly.dev/)
+
+**Used by:** [XudoQ](https://github.com/exphoenee/my-sudoq-react), a React Sudoku game, live at [xudoq.netlify.app](https://xudoq.netlify.app/).
 
 ## Architecture
 
