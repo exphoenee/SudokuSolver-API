@@ -47,7 +47,7 @@ src/
 | Health Check      | uptime + memory usage                       |
 | Graceful Shutdown | SIGTERM/SIGINT handling                     |
 | Version Dynamic   | package.json version auto-read              |
-| Caching           | In-memory cache for generated puzzles       |
+| Caching           | In-memory cache for GET responses (excludes `/generate`, which must stay random) |
 
 ## Quick Start
 

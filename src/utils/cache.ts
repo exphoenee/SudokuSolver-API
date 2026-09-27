@@ -3,6 +3,9 @@ import type { Request, Response, NextFunction } from 'express';
 export interface CacheOptions {
   ttl: number;
   enabled: boolean;
+  /** Path prefixes to never cache, e.g. endpoints that must return a fresh
+   *  result on every call (like puzzle generation). */
+  excludePrefixes?: string[];
 }
 
 export interface CacheEntry<T> {
@@ -15,6 +18,10 @@ const memoryCache = new Map<string, CacheEntry<unknown>>();
 export function createCacheMiddleware(options: CacheOptions = { ttl: 60000, enabled: true }) {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!options.enabled || req.method !== 'GET') {
+      return next();
+    }
+
+    if (options.excludePrefixes?.some(prefix => req.path.startsWith(prefix))) {
       return next();
     }
 

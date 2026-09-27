@@ -28,7 +28,7 @@ export function createApp(): Application {
   const corsOrigin = config.get<string>('api.corsOrigin') ?? '*';
   const corsOrigins = corsOrigin.split(',').map(origin => origin.trim()).filter(Boolean);
   app.use(cors({ origin: corsOrigins.length > 1 ? corsOrigins : corsOrigins[0] }));
-  app.use(cache.middleware({ ttl: 60000, enabled: true }));
+  app.use(cache.middleware({ ttl: 60000, enabled: true, excludePrefixes: ['/generate'] }));
 
   const limiter = rateLimit({
     windowMs: 60 * 1000,
